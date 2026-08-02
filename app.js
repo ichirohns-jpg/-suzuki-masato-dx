@@ -2,72 +2,62 @@
   "use strict";
 
   var D = window.DX_DATA || {};
+  var photos = (D.commonImages || []).filter(Boolean);
 
   function value(text) {
     return text == null ? "" : String(text);
   }
 
   function el(tag, className) {
-    var element = document.createElement(tag);
-
-    if (className) {
-      element.className = className;
-    }
-
-    return element;
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    return node;
   }
 
-  function addText(parent, tag, className, content) {
-    var element = el(tag, className);
-
-    element.textContent = value(content);
-    parent.appendChild(element);
-
-    return element;
+  function text(parent, tag, className, content) {
+    var node = el(tag, className);
+    node.textContent = value(content);
+    parent.appendChild(node);
+    return node;
   }
 
   function safeUrl(url) {
-    var text = value(url).trim();
+    var source = value(url).trim();
 
     return (
-      text.indexOf("#") === 0 ||
-      /^https?:\/\//i.test(text)
+      source.indexOf("#") === 0 ||
+      /^https?:\/\//i.test(source)
     );
   }
 
   function domain(url) {
     try {
-      return new URL(url).hostname
-        .replace(/^www\./i, "");
+      return new URL(url).hostname.replace(/^www\./i, "");
     } catch (error) {
-      return "";
+      return "公式サイト";
     }
   }
 
-  function addLinkedText(parent, content) {
-    var text = value(content);
+  function body(parent, content) {
+    if (!content) return;
+
+    var node = el("div", "body-text");
+    var source = value(content);
     var pattern = /(https?:\/\/[^\s]+)/gi;
-    var lastIndex = 0;
+    var last = 0;
     var match;
 
-    while ((match = pattern.exec(text)) !== null) {
-      var before = text.slice(
-        lastIndex,
-        match.index
+    while ((match = pattern.exec(source))) {
+      node.appendChild(
+        document.createTextNode(
+          source.slice(last, match.index)
+        )
       );
-
-      if (before) {
-        parent.appendChild(
-          document.createTextNode(before)
-        );
-      }
 
       var url = match[0];
       var ending = "";
 
-      while (
-        /[。、「」』）)】,，.!！?？]$/.test(url)
-      ) {
+      while (/[。、「」』）)】,，.!！?？]$/.test(url)) {
         ending = url.slice(-1) + ending;
         url = url.slice(0, -1);
       }
@@ -80,47 +70,53 @@
         link.rel = "noopener noreferrer";
         link.textContent = url;
 
-        parent.appendChild(link);
+        node.appendChild(link);
       } else {
-        parent.appendChild(
+        node.appendChild(
           document.createTextNode(url)
         );
       }
 
       if (ending) {
-        parent.appendChild(
+        node.appendChild(
           document.createTextNode(ending)
         );
       }
 
-      lastIndex =
-        match.index + match[0].length;
+      last = match.index + match[0].length;
     }
 
-    if (lastIndex < text.length) {
-      parent.appendChild(
-        document.createTextNode(
-          text.slice(lastIndex)
-        )
-      );
-    }
+    node.appendChild(
+      document.createTextNode(source.slice(last))
+    );
+
+    parent.appendChild(node);
   }
 
-  function addBody(parent, content) {
-    if (!content) return;
+  function image(parent, source, alt, className) {
+    if (!source) return null;
 
-    var body = el("div", "body-text");
+    var node = el("img", className);
 
-    addLinkedText(body, content);
-    parent.appendChild(body);
+    node.src = source;
+    node.alt = alt || "鈴木正人の活動写真";
+    node.loading = "lazy";
+
+    node.onerror = function () {
+      node.remove();
+    };
+
+    parent.appendChild(node);
+
+    return node;
   }
 
-  function addButton(parent, label, url, secondary) {
+  function button(parent, label, url, primary) {
     if (!url || !safeUrl(url)) return;
 
     var link = el(
       "a",
-      "button" + (secondary ? " sub" : "")
+      "button" + (primary ? " primary" : "")
     );
 
     link.href = url;
@@ -134,30 +130,29 @@
     parent.appendChild(link);
   }
 
-  function addShareButton(parent) {
-    var button = el(
+  function share(parent) {
+    var node = el(
       "button",
       "button share-button"
     );
 
-    button.type = "button";
-    button.textContent = "このページをシェア";
+    node.type = "button";
+    node.textContent = "このページをシェア";
 
-    button.addEventListener("click", function () {
-      var shareUrl =
-        D.publicUrl ||
-        window.location.href;
+    node.onclick = function () {
+      var url = D.publicUrl || window.location.href;
 
-      var shareData = {
+      var data = {
         title: value(D.title),
         text: value(D.description),
-        url: shareUrl
+        url: url
       };
 
       if (navigator.share) {
-        navigator.share(shareData).catch(
+        navigator.share(data).catch(
           function () {}
         );
+
         return;
       }
 
@@ -165,290 +160,568 @@
         navigator.clipboard &&
         navigator.clipboard.writeText
       ) {
-        navigator.clipboard
-          .writeText(shareUrl)
-          .then(function () {
-            button.textContent =
+        navigator.clipboard.writeText(url).then(
+          function () {
+            node.textContent =
               "リンクをコピーしました";
 
             setTimeout(function () {
-              button.textContent =
+              node.textContent =
                 "このページをシェア";
             }, 2200);
-          });
+          }
+        );
 
         return;
       }
 
       window.prompt(
         "下のURLをコピーしてください",
-        shareUrl
+        url
       );
-    });
-
-    parent.appendChild(button);
-  }
-
-  function addImage(
-    parent,
-    source,
-    alt,
-    className
-  ) {
-    if (!source) return null;
-
-    var image = el("img", className);
-
-    image.src = source;
-    image.alt = alt || "鈴木正人の活動写真";
-    image.loading = "lazy";
-
-    image.onerror = function () {
-      image.remove();
     };
 
-    parent.appendChild(image);
-
-    return image;
+    parent.appendChild(node);
   }
 
-  function addHeroCollage(parent, images) {
-    var list = (images || []).filter(Boolean);
+  function section(id, kicker, title) {
+    var root = el("section", "section");
 
-    if (!list.length) return;
+    root.id = id;
 
-    var collage = el("div", "hero-collage");
+    var heading = el(
+      "div",
+      "section-heading"
+    );
 
-    list.slice(0, 6).forEach(function (
-      source,
-      index
-    ) {
-      var figure = el(
-        "figure",
-        "hero-photo hero-photo-" +
-          (index + 1)
-      );
+    text(
+      heading,
+      "p",
+      "section-kicker",
+      kicker
+    );
 
-      var image = el("img");
+    text(
+      heading,
+      "h2",
+      "section-title",
+      title
+    );
 
-      image.src = source;
-      image.alt =
-        "鈴木正人の活動写真" +
-        (index + 1);
-      image.loading = "lazy";
-
-      image.onerror = function () {
-        figure.remove();
-      };
-
-      figure.appendChild(image);
-      collage.appendChild(figure);
-    });
-
-    parent.appendChild(collage);
-  }
-
-  function addGallery(parent, images) {
-    var list = (images || []).filter(Boolean);
-
-    if (!list.length) return;
-
-    var gallery = el("div", "gallery");
-
-    list.forEach(function (source, index) {
-      var figure = el("figure");
-      var image = el("img");
-
-      image.src = source;
-      image.alt =
-        "活動報告写真" + (index + 1);
-      image.loading = "lazy";
-
-      image.onerror = function () {
-        figure.remove();
-      };
-
-      figure.appendChild(image);
-
-      var caption = el("figcaption");
-
-      caption.textContent =
-        "活動写真 " + (index + 1);
-
-      figure.appendChild(caption);
-      gallery.appendChild(figure);
-    });
-
-    parent.appendChild(gallery);
-  }
-
-  function addSection(title, id) {
-    var section = el("section", "section");
-
-    if (id) {
-      section.id = id;
-    }
-
-    addText(section, "h2", "", title);
+    root.appendChild(heading);
 
     document
       .getElementById("app")
-      .appendChild(section);
+      .appendChild(root);
 
-    return section;
+    return root;
   }
 
-  function addPersonProfile(politician) {
-    var section = addSection(
-      "プロフィール",
-      "profile"
+  function featureSection(
+    id,
+    kicker,
+    title,
+    source,
+    alt,
+    reverse
+  ) {
+    var root = section(
+      id,
+      kicker,
+      title
     );
 
     var layout = el(
       "div",
-      "profile-layout"
+      "feature-layout" +
+        (reverse ? " reverse" : "")
+    );
+
+    var media = el(
+      "div",
+      "feature-media"
+    );
+
+    var content = el(
+      "div",
+      "feature-content"
+    );
+
+    image(
+      media,
+      source,
+      alt,
+      "feature-image"
+    );
+
+    layout.appendChild(media);
+    layout.appendChild(content);
+    root.appendChild(layout);
+
+    return {
+      root: root,
+      content: content
+    };
+  }
+
+  function photoRail(parent, list, start) {
+    var images = (list || [])
+      .filter(Boolean)
+      .slice(start || 0);
+
+    if (!images.length) return;
+
+    var rail = el(
+      "div",
+      "photo-rail"
+    );
+
+    images.forEach(function (source, index) {
+      var figure = el("figure");
+
+      image(
+        figure,
+        source,
+        "活動報告写真" + (index + 1),
+        ""
+      );
+
+      text(
+        figure,
+        "figcaption",
+        "",
+        "活動写真 " + (index + 1)
+      );
+
+      rail.appendChild(figure);
+    });
+
+    parent.appendChild(rail);
+  }
+
+  function youtubeUrl(url) {
+    var match = value(url).match(
+      /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i
+    );
+
+    return match
+      ? "https://www.youtube.com/embed/" +
+          match[1]
+      : "";
+  }
+
+  function youtube(parent, url) {
+    var embed = youtubeUrl(url);
+
+    if (!embed) return;
+
+    text(
+      parent,
+      "h3",
+      "",
+      "活動報告動画"
+    );
+
+    var box = el("div", "video");
+    var iframe = document.createElement(
+      "iframe"
+    );
+
+    iframe.src = embed;
+    iframe.title = "活動報告動画";
+    iframe.loading = "lazy";
+    iframe.allow =
+      "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+    iframe.allowFullscreen = true;
+
+    box.appendChild(iframe);
+    parent.appendChild(box);
+  }
+
+  function socialInfo(url) {
+    var source = value(url).toLowerCase();
+
+    if (source.indexOf("facebook.com") >= 0) {
+      return {
+        name: "Facebook（フェイスブック）",
+        icon: "f",
+        css: "facebook"
+      };
+    }
+
+    if (source.indexOf("instagram.com") >= 0) {
+      return {
+        name: "Instagram（インスタグラム）",
+        icon: "◎",
+        css: "instagram"
+      };
+    }
+
+    if (
+      source.indexOf("twitter.com") >= 0 ||
+      source.indexOf("x.com") >= 0
+    ) {
+      return {
+        name: "X（旧Twitter）",
+        icon: "X",
+        css: "x"
+      };
+    }
+
+    if (
+      source.indexOf("youtube.com") >= 0 ||
+      source.indexOf("youtu.be") >= 0
+    ) {
+      return {
+        name: "YouTube",
+        icon: "▶",
+        css: "youtube"
+      };
+    }
+
+    if (source.indexOf("ameblo.jp") >= 0) {
+      return {
+        name: "アメブロ",
+        icon: "A",
+        css: "ameblo"
+      };
+    }
+
+    if (source.indexOf("line.me") >= 0) {
+      return {
+        name: "公式LINE",
+        icon: "L",
+        css: "line"
+      };
+    }
+
+    if (source.indexOf("tiktok.com") >= 0) {
+      return {
+        name: "TikTok",
+        icon: "♪",
+        css: "other"
+      };
+    }
+
+    if (source.indexOf("note.com") >= 0) {
+      return {
+        name: "note",
+        icon: "n",
+        css: "other"
+      };
+    }
+
+    return {
+      name: "公式SNSリンク",
+      icon: "↗",
+      css: "other"
+    };
+  }
+
+  function socialCard(
+    parent,
+    name,
+    url,
+    icon,
+    css
+  ) {
+    if (!url || !safeUrl(url)) return;
+
+    var link = el(
+      "a",
+      "social-card " + css
+    );
+
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+
+    text(
+      link,
+      "span",
+      "social-icon",
+      icon
+    );
+
+    var copy = el(
+      "span",
+      "social-text"
+    );
+
+    text(
+      copy,
+      "strong",
+      "social-name",
+      name
+    );
+
+    text(
+      copy,
+      "small",
+      "social-url",
+      domain(url)
+    );
+
+    link.appendChild(copy);
+    parent.appendChild(link);
+  }
+
+  function renderHero() {
+    var root = el(
+      "section",
+      "hero"
+    );
+
+    var inner = el(
+      "div",
+      "hero-inner"
+    );
+
+    var copy = el(
+      "div",
+      "hero-copy"
     );
 
     var visual = el(
       "div",
-      "profile-visual"
+      "hero-visual"
     );
 
-    var photoWrap = el(
-      "figure",
-      "person-photo-wrap"
+    text(
+      copy,
+      "p",
+      "hero-kicker",
+      "埼玉県議会議員・鈴木正人"
     );
 
-    addImage(
-      photoWrap,
-      politician.image ||
-        (D.commonImages || [])[0],
-      "鈴木正人のプロフィール写真",
-      "person-photo"
+    text(
+      copy,
+      "h2",
+      "hero-name",
+      D.politician
+        ? D.politician.name
+        : D.title
     );
 
-    visual.appendChild(photoWrap);
-
-    var mini = el(
-      "div",
-      "profile-mini-gallery"
-    );
-
-    (D.commonImages || [])
-      .slice(1, 4)
-      .forEach(function (source, index) {
-        addImage(
-          mini,
-          source,
-          "活動写真" + (index + 2),
-          ""
-        );
-      });
-
-    if (mini.children.length) {
-      visual.appendChild(mini);
+    if (D.politician) {
+      text(
+        copy,
+        "p",
+        "hero-role",
+        [
+          D.politician.role,
+          D.politician.area
+        ]
+          .filter(Boolean)
+          .join("｜")
+      );
     }
 
-    layout.appendChild(visual);
-
-    var text = el(
-      "div",
-      "profile-copy"
+    text(
+      copy,
+      "p",
+      "hero-lead",
+      D.appeal || D.description
     );
 
-    addText(
-      text,
+    var nav = el(
+      "nav",
+      "page-nav"
+    );
+
+    button(
+      nav,
+      "活動報告",
+      "#activity",
+      false
+    );
+
+    button(
+      nav,
+      "プロフィール",
+      "#profile",
+      false
+    );
+
+    button(
+      nav,
+      "政策・活動",
+      "#policy",
+      false
+    );
+
+    button(
+      nav,
+      "市民相談",
+      "#consultation",
+      false
+    );
+
+    button(
+      nav,
+      "公式サイト",
+      D.officialSite,
+      true
+    );
+
+    share(nav);
+    copy.appendChild(nav);
+
+    var main = el(
+      "figure",
+      "hero-photo-main"
+    );
+
+    image(
+      main,
+      (
+        D.politician &&
+        D.politician.image
+      ) || photos[0],
+      "鈴木正人の活動写真",
+      ""
+    );
+
+    visual.appendChild(main);
+
+    if (photos[1]) {
+      var sub = el(
+        "figure",
+        "hero-photo-sub"
+      );
+
+      image(
+        sub,
+        photos[1],
+        "鈴木正人の活動写真",
+        ""
+      );
+
+      visual.appendChild(sub);
+    }
+
+    text(
+      visual,
+      "p",
+      "photo-note",
+      "地域の声を県政へ"
+    );
+
+    inner.appendChild(copy);
+    inner.appendChild(visual);
+    root.appendChild(inner);
+
+    document
+      .getElementById("app")
+      .appendChild(root);
+  }
+
+  function renderProfile() {
+    if (!D.politician) return;
+
+    var block = featureSection(
+      "profile",
+      "PROFILE",
+      "プロフィール",
+      D.politician.image ||
+        photos[0],
+      "鈴木正人のプロフィール写真",
+      false
+    );
+
+    text(
+      block.content,
       "h3",
       "",
-      politician.name
+      D.politician.name
     );
 
-    addText(
-      text,
-      "div",
-      "meta",
+    text(
+      block.content,
+      "p",
+      "hero-role",
       [
-        politician.role,
-        politician.area
+        D.politician.role,
+        D.politician.area
       ]
         .filter(Boolean)
         .join("｜")
     );
 
-    addBody(text, politician.profile);
-
-    layout.appendChild(text);
-    section.appendChild(layout);
-  }
-
-  function addActivity(article) {
-    var section = addSection(
-      "活動報告",
-      "activity"
+    body(
+      block.content,
+      D.politician.profile
     );
 
-    addText(
-      section,
-      "div",
-      "meta",
-      article.date
-    );
-
-    addText(
-      section,
-      "h3",
-      "",
-      article.title
-    );
-
-    addBody(section, article.body);
-
-    var images =
-      (D.articleImages || []).filter(Boolean);
-
-    if (images.length) {
-      var feature = el(
-        "div",
-        "activity-feature"
-      );
-
-      addImage(
-        feature,
-        images[0],
-        "活動報告の代表写真",
-        ""
-      );
-
-      section.appendChild(feature);
-
-      addGallery(
-        section,
-        images.slice(1)
-      );
-    }
-
-    addYouTube(
-      section,
-      article.youtube
+    photoRail(
+      block.root,
+      photos,
+      2
     );
   }
 
-  function addPolicy(politician) {
-    var lines = value(
-      politician.policy
+  function renderActivity() {
+    if (!D.article) return;
+
+    var articlePhotos = (
+      D.articleImages || photos
     )
-      .split(/\\n|\n/)
-      .map(function (line) {
-        return line
-          .replace(/^・/, "")
-          .trim();
-      })
       .filter(Boolean);
 
-    if (!lines.length) return;
+    var block = featureSection(
+      "activity",
+      "ACTIVITY REPORT",
+      "活動報告",
+      articlePhotos[2] ||
+        articlePhotos[0] ||
+        photos[0],
+      "活動報告の代表写真",
+      true
+    );
 
-    var section = addSection(
-      "政策・活動の柱"
+    text(
+      block.content,
+      "div",
+      "feature-date",
+      D.article.date
+    );
+
+    text(
+      block.content,
+      "h3",
+      "",
+      D.article.title
+    );
+
+    body(
+      block.content,
+      D.article.body
+    );
+
+    youtube(
+      block.content,
+      D.article.youtube ||
+        D.youtube
+    );
+
+    photoRail(
+      block.root,
+      articlePhotos,
+      3
+    );
+  }
+
+  function renderPolicy() {
+    if (!D.politician) return;
+
+    var block = featureSection(
+      "policy",
+      "POLICY",
+      "政策・活動の柱",
+      photos[3] ||
+        photos[0],
+      "地域活動の写真",
+      false
     );
 
     var list = el(
@@ -456,190 +729,92 @@
       "policy-list"
     );
 
-    lines.forEach(function (line) {
-      addText(list, "li", "", line);
-    });
+    value(D.politician.policy)
+      .split(/\\n|\n/)
+      .filter(Boolean)
+      .forEach(function (line) {
+        text(
+          list,
+          "li",
+          "",
+          line
+            .replace(/^・/, "")
+            .trim()
+        );
+      });
 
-    section.appendChild(list);
+    block.content.appendChild(list);
   }
 
-  function addConsultation() {
-    var section = addSection(
-      "市民相談"
+  function renderConsultation() {
+    var block = featureSection(
+      "consultation",
+      "CONSULTATION",
+      "市民相談",
+      photos[4] ||
+        photos[0],
+      "地域の声を聞く活動",
+      true
     );
 
     var box = el(
       "div",
-      "consultation-box"
+      "contact-box"
     );
 
-    addBody(
+    body(
       box,
-      D.politician &&
-        D.politician.consultation ||
-        D.contact
+      (
+        D.politician &&
+        D.politician.consultation
+      ) || D.contact
     );
 
-    addButton(
+    button(
       box,
       "お問い合わせページを開く",
       D.contactUrl ||
         "https://masato.trans.ne.jp/?page_id=47",
-      false
+      true
     );
 
-    section.appendChild(box);
+    block.content.appendChild(box);
   }
 
-  function socialInfo(url) {
-    var text = value(url).toLowerCase();
-
-    if (text.indexOf("facebook.com") >= 0) {
-      return {
-        name: "Facebook（フェイスブック）",
-        shortName: "Facebook",
-        icon: "f",
-        className: "facebook"
-      };
-    }
-
-    if (
-      text.indexOf("instagram.com") >= 0
-    ) {
-      return {
-        name: "Instagram（インスタグラム）",
-        shortName: "Instagram",
-        icon: "◎",
-        className: "instagram"
-      };
-    }
-
-    if (
-      text.indexOf("twitter.com") >= 0 ||
-      text.indexOf("x.com") >= 0
-    ) {
-      return {
-        name: "X（旧Twitter）",
-        shortName: "X",
-        icon: "X",
-        className: "x"
-      };
-    }
-
-    if (
-      text.indexOf("youtube.com") >= 0 ||
-      text.indexOf("youtu.be") >= 0
-    ) {
-      return {
-        name: "YouTube",
-        shortName: "YouTube",
-        icon: "▶",
-        className: "youtube"
-      };
-    }
-
-    if (text.indexOf("ameblo.jp") >= 0) {
-      return {
-        name: "アメブロ",
-        shortName: "アメブロ",
-        icon: "A",
-        className: "ameblo"
-      };
-    }
-
-    if (text.indexOf("line.me") >= 0) {
-      return {
-        name: "LINE",
-        shortName: "公式LINE",
-        icon: "L",
-        className: "line"
-      };
-    }
-
-    if (text.indexOf("tiktok.com") >= 0) {
-      return {
-        name: "TikTok",
-        shortName: "TikTok",
-        icon: "♪",
-        className: "tiktok"
-      };
-    }
-
-    if (text.indexOf("note.com") >= 0) {
-      return {
-        name: "note",
-        shortName: "note",
-        icon: "n",
-        className: "note"
-      };
-    }
-
-    return {
-      name: "公式SNSリンク",
-      shortName: domain(url),
-      icon: "↗",
-      className: "other"
-    };
-  }
-
-  function addSocialCard(
-    parent,
-    label,
-    url,
-    className,
-    icon
-  ) {
-    if (!url || !safeUrl(url)) return;
-
-    var link = el(
-      "a",
-      "social-card " + className
-    );
-
-    link.href = url;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-
-    var iconElement = el(
-      "span",
-      "social-icon"
-    );
-
-    iconElement.textContent = icon;
-    link.appendChild(iconElement);
-
-    var text = el(
-      "span",
-      "social-text"
-    );
-
-    var name = el(
-      "strong",
-      "social-name"
-    );
-
-    name.textContent = label;
-    text.appendChild(name);
-
-    var urlText = el(
-      "small",
-      "social-url"
-    );
-
-    urlText.textContent = domain(url);
-    text.appendChild(urlText);
-
-    link.appendChild(text);
-    parent.appendChild(link);
-  }
-
-  function addSocialSection() {
-    var section = addSection(
+  function renderSocial() {
+    var root = section(
+      "social",
+      "OFFICIAL / SNS",
       "公式サイト・SNS"
     );
 
-    addText(
-      section,
+    var layout = el(
+      "div",
+      "social-layout"
+    );
+
+    var visual = el(
+      "div",
+      "social-visual"
+    );
+
+    var copy = el(
+      "div",
+      "social-content"
+    );
+
+    image(
+      visual,
+      photos[5] ||
+        photos[0],
+      "鈴木正人の活動写真",
+      "social-image"
+    );
+
+    layout.appendChild(visual);
+
+    text(
+      copy,
       "p",
       "social-lead",
       "公式ホームページやSNSから、最新の活動をご覧いただけます。"
@@ -650,222 +825,74 @@
       "social-grid"
     );
 
-    addSocialCard(
+    socialCard(
       grid,
       "公式ホームページ",
       D.officialSite,
-      "official-card",
-      "Web"
+      "Web",
+      "other"
     );
 
-    (D.sns || []).forEach(function (url) {
-      var info = socialInfo(url);
+    (D.sns || [])
+      .filter(Boolean)
+      .forEach(function (url) {
+        var info = socialInfo(url);
 
-      addSocialCard(
-        grid,
-        info.name,
-        url,
-        info.className,
-        info.icon
-      );
-    });
-
-    if (D.youtube) {
-      var youtubeAlready = (
-        D.sns || []
-      ).some(function (url) {
-        return socialInfo(url).className === "youtube";
+        socialCard(
+          grid,
+          info.name,
+          url,
+          info.icon,
+          info.css
+        );
       });
 
-      if (!youtubeAlready) {
-        addSocialCard(
-          grid,
-          "YouTube",
-          D.youtube,
-          "youtube",
-          "▶"
-        );
-      }
+    if (
+      D.youtube &&
+      !(D.sns || []).some(
+        function (url) {
+          return socialInfo(url).css === "youtube";
+        }
+      )
+    ) {
+      socialCard(
+        grid,
+        "YouTube",
+        D.youtube,
+        "▶",
+        "youtube"
+      );
     }
 
-    addSocialCard(
+    socialCard(
       grid,
       "お問い合わせページ",
       D.contactUrl ||
         "https://masato.trans.ne.jp/?page_id=47",
-      "contact-card",
-      "✉"
+      "✉",
+      "other"
     );
 
-    section.appendChild(grid);
-  }
-
-  function youtubeEmbedUrl(url) {
-    var text = value(url).trim();
-
-    var match = text.match(
-      /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i
-    );
-
-    if (!match) return "";
-
-    return (
-      "https://www.youtube.com/embed/" +
-      match[1]
-    );
-  }
-
-  function addYouTube(parent, url) {
-    var embedUrl = youtubeEmbedUrl(url);
-
-    if (!embedUrl) return;
-
-    addText(
-      parent,
-      "h3",
-      "",
-      "活動報告動画"
-    );
-
-    var video = el(
-      "div",
-      "video"
-    );
-
-    var iframe = document.createElement(
-      "iframe"
-    );
-
-    iframe.src = embedUrl;
-    iframe.title = "活動報告動画";
-    iframe.loading = "lazy";
-    iframe.allow =
-      "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-    iframe.allowFullscreen = true;
-
-    video.appendChild(iframe);
-    parent.appendChild(video);
+    copy.appendChild(grid);
+    layout.appendChild(copy);
+    root.appendChild(layout);
   }
 
   function render() {
-    var titleElement =
-      document.getElementById("siteTitle");
+    var app = document.getElementById("app");
+    var title = document.getElementById("siteTitle");
 
-    var app =
-      document.getElementById("app");
-
-    if (!titleElement || !app) return;
+    if (!app || !title) return;
 
     app.innerHTML = "";
+    title.textContent = value(D.title);
 
-    titleElement.textContent =
-      value(D.title);
-
-    var hero = el(
-      "section",
-      "hero"
-    );
-
-    var heroGrid = el(
-      "div",
-      "hero-grid"
-    );
-
-    var heroCopy = el(
-      "div",
-      "hero-copy"
-    );
-
-    addText(
-      heroCopy,
-      "h2",
-      "",
-      D.title
-    );
-
-    addText(
-      heroCopy,
-      "p",
-      "",
-      D.description
-    );
-
-    if (D.appeal) {
-      addText(
-        heroCopy,
-        "div",
-        "appeal",
-        D.appeal
-      );
-    }
-
-    var navigation = el(
-      "div",
-      "buttons"
-    );
-
-    addButton(
-      navigation,
-      "プロフィール",
-      "#profile",
-      true
-    );
-
-    addButton(
-      navigation,
-      "活動報告",
-      "#activity",
-      true
-    );
-
-    addButton(
-      navigation,
-      "お問い合わせ",
-      D.contactUrl ||
-        "https://masato.trans.ne.jp/?page_id=47",
-      false
-    );
-
-    addShareButton(navigation);
-
-    heroCopy.appendChild(navigation);
-    heroGrid.appendChild(heroCopy);
-
-    var collageWrap = el(
-      "div",
-      "hero-visual"
-    );
-
-    addHeroCollage(
-      collageWrap,
-      D.commonImages
-    );
-
-    heroGrid.appendChild(collageWrap);
-    hero.appendChild(heroGrid);
-    app.appendChild(hero);
-
-    if (D.politician) {
-      addPersonProfile(
-        D.politician
-      );
-    }
-
-    if (D.article) {
-      addActivity(
-        D.article
-      );
-    }
-
-    if (D.politician) {
-      addPolicy(
-        D.politician
-      );
-
-      addConsultation();
-    }
-
-    addSocialSection();
+    renderHero();
+    renderActivity();
+    renderProfile();
+    renderPolicy();
+    renderConsultation();
+    renderSocial();
   }
 
   if (document.readyState === "loading") {
