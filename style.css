@@ -282,6 +282,11 @@ a {
   color: var(--green);
 }
 
+.share-button {
+  cursor: pointer;
+  font: inherit;
+}
+
 .policy-list {
   margin: 0;
   padding-left: 1.35em;
