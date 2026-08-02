@@ -5,7 +5,11 @@
 
   function createElement(tag, className) {
     var element = document.createElement(tag);
-    if (className) element.className = className;
+
+    if (className) {
+      element.className = className;
+    }
+
     return element;
   }
 
@@ -22,7 +26,11 @@
 
   function isSafeUrl(url) {
     var text = value(url).trim();
-    return text.indexOf("#") === 0 || /^https?:\/\//i.test(text);
+
+    return (
+      text.indexOf("#") === 0 ||
+      /^https?:\/\//i.test(text)
+    );
   }
 
   function addLinkedText(parent, content) {
@@ -35,7 +43,9 @@
       var before = text.slice(lastIndex, match.index);
 
       if (before) {
-        parent.appendChild(document.createTextNode(before));
+        parent.appendChild(
+          document.createTextNode(before)
+        );
       }
 
       var url = match[0];
@@ -46,15 +56,25 @@
         url = url.slice(0, -1);
       }
 
-      var link = document.createElement("a");
-      link.href = url;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.textContent = url;
-      parent.appendChild(link);
+      if (isSafeUrl(url)) {
+        var link = document.createElement("a");
+
+        link.href = url;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = url;
+
+        parent.appendChild(link);
+      } else {
+        parent.appendChild(
+          document.createTextNode(url)
+        );
+      }
 
       if (ending) {
-        parent.appendChild(document.createTextNode(ending));
+        parent.appendChild(
+          document.createTextNode(ending)
+        );
       }
 
       lastIndex = match.index + match[0].length;
@@ -71,6 +91,7 @@
     if (!content) return;
 
     var element = createElement("div", "body-text");
+
     addLinkedText(element, content);
     parent.appendChild(element);
   }
@@ -94,6 +115,59 @@
     parent.appendChild(link);
   }
 
+  function addShareButton(parent) {
+    var button = createElement(
+      "button",
+      "button share-button"
+    );
+
+    button.type = "button";
+    button.textContent = "このページをシェア";
+
+    button.addEventListener("click", function () {
+      var shareUrl =
+        D.publicUrl ||
+        window.location.href;
+
+      var shareData = {
+        title: value(D.title),
+        text: value(D.description),
+        url: shareUrl
+      };
+
+      if (navigator.share) {
+        navigator.share(shareData).catch(function () {});
+        return;
+      }
+
+      if (
+        navigator.clipboard &&
+        navigator.clipboard.writeText
+      ) {
+        navigator.clipboard
+          .writeText(shareUrl)
+          .then(function () {
+            button.textContent =
+              "リンクをコピーしました";
+
+            setTimeout(function () {
+              button.textContent =
+                "このページをシェア";
+            }, 2200);
+          });
+
+        return;
+      }
+
+      window.prompt(
+        "下のURLをコピーしてください",
+        shareUrl
+      );
+    });
+
+    parent.appendChild(button);
+  }
+
   function addGallery(parent, images) {
     var list = (images || []).filter(Boolean);
 
@@ -106,7 +180,8 @@
       var image = document.createElement("img");
 
       image.src = source;
-      image.alt = "鈴木正人の活動写真" + (index + 1);
+      image.alt =
+        "鈴木正人の活動写真" + (index + 1);
       image.loading = "lazy";
 
       image.onerror = function () {
@@ -116,9 +191,10 @@
       figure.appendChild(image);
 
       var caption = createElement("figcaption");
-      caption.textContent = "活動写真 " + (index + 1);
-      figure.appendChild(caption);
+      caption.textContent =
+        "活動写真 " + (index + 1);
 
+      figure.appendChild(caption);
       gallery.appendChild(figure);
     });
 
@@ -133,29 +209,37 @@
     }
 
     addText(section, "h2", "", title);
-    document.getElementById("app").appendChild(section);
+
+    document
+      .getElementById("app")
+      .appendChild(section);
 
     return section;
   }
 
-  function getYouTubeEmbedUrl(url) {
+  function youtubeEmbedUrl(url) {
     var text = value(url).trim();
 
     var match = text.match(
       /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i
     );
 
-    if (!match) return "";
-
-    return "https://www.youtube.com/embed/" + match[1];
+    return match
+      ? "https://www.youtube.com/embed/" + match[1]
+      : "";
   }
 
   function addYouTube(parent, url) {
-    var embedUrl = getYouTubeEmbedUrl(url);
+    var embedUrl = youtubeEmbedUrl(url);
 
     if (!embedUrl) return;
 
-    addText(parent, "h3", "", "活動報告動画");
+    addText(
+      parent,
+      "h3",
+      "",
+      "活動報告動画"
+    );
 
     var video = createElement("div", "video");
 
@@ -184,18 +268,24 @@
   }
 
   function addPolicySection(politician) {
-    var policySection = addSection("政策・活動の柱");
+    var policySection =
+      addSection("政策・活動の柱");
 
     var lines = value(politician.policy)
       .split(/\\n|\n/)
       .map(function (line) {
-        return line.replace(/^・/, "").trim();
+        return line
+          .replace(/^・/, "")
+          .trim();
       })
       .filter(Boolean);
 
     if (!lines.length) return;
 
-    var list = createElement("ul", "policy-list");
+    var list = createElement(
+      "ul",
+      "policy-list"
+    );
 
     lines.forEach(function (line) {
       addText(list, "li", "", line);
@@ -205,8 +295,11 @@
   }
 
   function render() {
-    var titleElement = document.getElementById("siteTitle");
-    var app = document.getElementById("app");
+    var titleElement =
+      document.getElementById("siteTitle");
+
+    var app =
+      document.getElementById("app");
 
     if (!titleElement || !app) return;
 
@@ -218,10 +311,16 @@
     addText(hero, "p", "", D.description);
 
     if (D.appeal) {
-      addText(hero, "div", "appeal", D.appeal);
+      addText(
+        hero,
+        "div",
+        "appeal",
+        D.appeal
+      );
     }
 
-    var navigation = createElement("div", "buttons");
+    var navigation =
+      createElement("div", "buttons");
 
     addButton(
       navigation,
@@ -245,13 +344,16 @@
       false
     );
 
+    addShareButton(navigation);
+
     hero.appendChild(navigation);
     app.appendChild(hero);
 
     addGallery(hero, D.commonImages);
 
     if (D.politician) {
-      var profile = addSection("プロフィール", "profile");
+      var profile =
+        addSection("プロフィール", "profile");
 
       addText(
         profile,
@@ -278,8 +380,46 @@
       );
     }
 
+    if (D.restaurant) {
+      var restaurant =
+        addSection("店舗情報", "profile");
+
+      addText(
+        restaurant,
+        "h3",
+        "",
+        D.restaurant.name
+      );
+
+      addBody(
+        restaurant,
+        D.restaurant.catchCopy
+      );
+
+      addBody(
+        restaurant,
+        D.restaurant.address
+      );
+
+      addBody(
+        restaurant,
+        D.restaurant.hours
+      );
+
+      addBody(
+        restaurant,
+        D.restaurant.menu
+      );
+
+      addGallery(
+        restaurant,
+        [D.restaurant.image]
+      );
+    }
+
     if (D.article) {
-      var article = addSection("活動報告", "activity");
+      var article =
+        addSection("活動報告", "activity");
 
       addText(
         article,
@@ -314,7 +454,8 @@
     if (D.politician) {
       addPolicySection(D.politician);
 
-      var consultation = addSection("市民相談");
+      var consultation =
+        addSection("市民相談");
 
       addBody(
         consultation,
@@ -331,7 +472,8 @@
       );
     }
 
-    var links = addSection("公式サイト・SNS");
+    var links =
+      addSection("公式サイト・SNS");
 
     addButton(
       links,
@@ -340,7 +482,10 @@
       false
     );
 
-    (D.sns || []).forEach(function (url, index) {
+    (D.sns || []).forEach(function (
+      url,
+      index
+    ) {
       addButton(
         links,
         "SNS " + (index + 1),
