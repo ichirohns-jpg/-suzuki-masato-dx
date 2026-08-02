@@ -1,0 +1,14 @@
+{
+  "name": "鈴木正人｜埼玉県議会議員 活動報告DX",
+  "short_name": "鈴木正人DX",
+  "id": "./index.html",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f7fbf8",
+  "theme_color": "#287653",
+  "description": "埼玉県議会議員・鈴木正人のプロフィール、政策、活動報告、市民相談、公式サイトやSNSをまとめたページです。",
+  "lang": "ja",
+  "dir": "ltr"
+}
