@@ -7,9 +7,7 @@
   var app = document.getElementById("app");
   var photos = (D.commonImages || []).filter(Boolean);
 
-  function text(value) {
-    return value == null ? "" : String(value);
-  }
+  function text(value) { return value == null ? "" : String(value); }
 
   function listValue(value) {
     if (Array.isArray(value)) return value;
@@ -78,22 +76,67 @@
     return normalizeYoutubeUrl(value);
   }
 
-  function el(tag, className) {
-    var node = document.createElement(tag);
+  function socialUrls() {
+    var urls = [];
 
-    if (className) {
-      node.className = className;
+    function add(value) {
+      if (Array.isArray(value)) {
+        value.forEach(add);
+        return;
+      }
+
+      if (value && typeof value === "object") {
+        add(value.url || value.href || value.link || value.value || "");
+        return;
+      }
+
+      listValue(value).forEach(function (item) {
+        var url = text(item).trim();
+
+        if (!url || /ameblo\.jp/i.test(url)) return;
+
+        if (urls.indexOf(url) < 0) {
+          urls.push(url);
+        }
+      });
     }
 
+    [
+      D.sns,
+      D.socials,
+      D.facebook,
+      D.facebookUrl,
+      D.facebookURL,
+      D.x,
+      D.xUrl,
+      D.xURL,
+      D.twitter,
+      D.twitterUrl,
+      D.twitterURL,
+      D.instagram,
+      D.instagramUrl,
+      D.instagramURL,
+      D.youtubeChannel,
+      D.youtubeChannelUrl,
+      D.youtube,
+      D.youtubeUrl,
+      D.youtubeURL,
+      D.youtube_url
+    ].forEach(add);
+
+    return urls;
+  }
+
+  function el(tag, className) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
     return node;
   }
 
   function addText(parent, tag, className, value) {
     var node = el(tag, className);
-
     node.textContent = text(value);
     parent.appendChild(node);
-
     return node;
   }
 
@@ -113,7 +156,6 @@
     if (!src) return null;
 
     var image = el("img", className || "");
-
     image.src = src;
     image.alt = alt || "鈴木正人の活動写真";
     image.loading = "lazy";
@@ -130,7 +172,6 @@
     };
 
     parent.appendChild(image);
-
     return image;
   }
 
@@ -150,7 +191,6 @@
     }
 
     parent.appendChild(link);
-
     return link;
   }
 
@@ -412,18 +452,7 @@
   }
 
   function articleSocialLinks(parent) {
-    var urls = (D.sns || []).filter(Boolean);
-    var commonYoutube = D.youtube || D.youtubeUrl || "";
-
-    if (
-      commonYoutube &&
-      urls.indexOf(commonYoutube) < 0 &&
-      !(isYoutubeUrl(commonYoutube) && youtubeId(commonYoutube))
-    ) {
-      urls.push(commonYoutube);
-    }
-
-    if (!urls.length) return;
+    var urls = socialUrls();
 
     var box = el("div", "article-social-links");
     var grid = el("div", "article-social-grid");
@@ -533,9 +562,26 @@
 
     var actions = el("div", "hero-actions");
 
-    addLink(actions, "活動報告を見る", "#activity", "button gold");
-    addLink(actions, "プロフィール", "#profile", "button secondary");
-    addLink(actions, "公式サイト", D.officialSite, "button");
+    addLink(
+      actions,
+      "活動報告を見る",
+      "#activity",
+      "button gold"
+    );
+
+    addLink(
+      actions,
+      "プロフィール",
+      "#profile",
+      "button secondary"
+    );
+
+    addLink(
+      actions,
+      "公式サイト",
+      D.officialSite,
+      "button"
+    );
 
     var shareButton = el("button", "share-button");
 
@@ -587,7 +633,12 @@
       collage.appendChild(mini);
     }
 
-    addText(collage, "p", "collage-note", "志木市から県政へ");
+    addText(
+      collage,
+      "p",
+      "collage-note",
+      "志木市から県政へ"
+    );
 
     visual.appendChild(collage);
 
@@ -599,7 +650,12 @@
       "鈴木正人"
     );
 
-    addText(portrait, "span", "portrait-label", "鈴木正人");
+    addText(
+      portrait,
+      "span",
+      "portrait-label",
+      "鈴木正人"
+    );
 
     visual.appendChild(portrait);
 
@@ -642,8 +698,20 @@
 
     var content = el("div", "activity-content activity-content-full");
 
-    addText(content, "div", "date-badge", article.date);
-    addText(content, "h3", "content-title", article.title);
+    addText(
+      content,
+      "div",
+      "date-badge",
+      article.date
+    );
+
+    addText(
+      content,
+      "h3",
+      "content-title",
+      article.title
+    );
+
     addBody(content, article.body);
 
     var activityYoutube =
@@ -729,7 +797,12 @@
 
     var values = key.split("-");
 
-    return values[0] + "年" + Number(values[1]) + "月";
+    return (
+      values[0] +
+      "年" +
+      Number(values[1]) +
+      "月"
+    );
   }
 
   function archiveDateLabel(value) {
@@ -807,7 +880,10 @@
 
     keys.forEach(function (key) {
       groups[key].sort(function (a, b) {
-        return archiveDateNumber(b.date) - archiveDateNumber(a.date);
+        return (
+          archiveDateNumber(b.date) -
+          archiveDateNumber(a.date)
+        );
       });
     });
 
@@ -822,7 +898,9 @@
     var groupsRoot = el("div", "archive-groups");
 
     function activate(key) {
-      Array.from(tabs.querySelectorAll("button")).forEach(function (button) {
+      Array.from(
+        tabs.querySelectorAll("button")
+      ).forEach(function (button) {
         button.classList.toggle(
           "active",
           button.getAttribute("data-month") === key
@@ -845,6 +923,7 @@
       button.className = "archive-month-button";
       button.setAttribute("data-month", key);
       button.textContent = label;
+
       button.onclick = function () {
         activate(key);
       };
@@ -972,7 +1051,12 @@
       "profile-image"
     );
 
-    addText(content, "h3", "profile-name", person.name);
+    addText(
+      content,
+      "h3",
+      "profile-name",
+      person.name
+    );
 
     addText(
       content,
@@ -1009,7 +1093,12 @@
       })
       .filter(Boolean)
       .forEach(function (line) {
-        addText(grid, "div", "policy-item", line);
+        addText(
+          grid,
+          "div",
+          "policy-item",
+          line
+        );
       });
 
     root.appendChild(grid);
@@ -1038,7 +1127,11 @@
 
     var box = el("div", "consultation-box");
 
-    addBody(box, person.consultation || D.contact);
+    addBody(
+      box,
+      person.consultation || D.contact
+    );
+
     addLink(
       box,
       "お問い合わせページを開く",
@@ -1088,33 +1181,19 @@
       "other"
     );
 
-    (D.sns || [])
-      .filter(Boolean)
-      .forEach(function (url) {
-        var info = socialInfo(url);
+    socialUrls().forEach(function (url) {
+      var info = socialInfo(url);
 
-        if (!info) return;
+      if (!info) return;
 
-        addSocialDestination(
-          grid,
-          info.name,
-          url,
-          info.icon,
-          info.css
-        );
-      });
-
-    var commonYoutube = D.youtube || D.youtubeUrl || "";
-
-    if (commonYoutube) {
       addSocialDestination(
         grid,
-        "YouTube",
-        commonYoutube,
-        "▶",
-        "youtube"
+        info.name,
+        url,
+        info.icon,
+        info.css
       );
-    }
+    });
 
     socialCard(
       grid,
@@ -1127,7 +1206,7 @@
     content.appendChild(grid);
     layout.appendChild(image);
     layout.appendChild(content);
-    root.appendChild(layout);
+    root.appendChild(root);
   }
 
   function normalizeNews(item) {
@@ -1197,7 +1276,10 @@
           .map(normalizeNews)
           .filter(Boolean)
           .sort(function (a, b) {
-            return archiveDateNumber(b.date) - archiveDateNumber(a.date);
+            return (
+              archiveDateNumber(b.date) -
+              archiveDateNumber(a.date)
+            );
           });
 
         return {
