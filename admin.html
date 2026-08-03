@@ -13,7 +13,7 @@
   <header class="top">
     <div class="top-inner">
       <h1>鈴木正人｜活動報告更新</h1>
-      <p>日付・タイトル・本文・写真・YouTubeを更新します。</p>
+      <p>パスワード認証後、記事・写真・YouTube・関連リンクを更新できます。</p>
     </div>
   </header>
 
@@ -25,73 +25,77 @@
         <input id="password" type="password" autocomplete="current-password">
       </div>
       <div class="actions">
-        <button id="load" class="button" type="button">記事一覧を読み込む</button>
-        <button id="new" class="button secondary" type="button">新しい記事を書く</button>
+        <button id="load" class="button" type="button">ログインして記事一覧を読み込む</button>
       </div>
       <div id="status" class="status"></div>
     </section>
 
-    <section class="card">
-      <h2>保存済みの記事</h2>
-      <div id="list" class="article-list">
-        <p class="help">「記事一覧を読み込む」を押してください。</p>
-      </div>
-    </section>
+    <div id="operationArea" class="hidden">
+      <section class="card">
+        <h2>保存済みの記事</h2>
+        <div class="actions">
+          <button id="new" class="button secondary" type="button">新しい記事を書く</button>
+        </div>
+        <div id="list" class="article-list">
+          <p class="help">「記事一覧を読み込む」を押してください。</p>
+        </div>
+      </section>
 
-    <form id="editor" class="card">
-      <h2 id="editorTitle">新しい活動報告</h2>
-      <input id="newsId" type="hidden">
+      <form id="editor" class="card">
+        <h2 id="editorTitle">新しい活動報告</h2>
+        <input id="newsId" type="hidden">
 
-      <div class="grid">
-        <div class="field">
-          <label class="label" for="date">日付</label>
-          <input id="date" type="date" required>
+        <div class="grid">
+          <div class="field">
+            <label class="label" for="date">日付</label>
+            <input id="date" type="date" required>
+          </div>
+
+          <div class="field">
+            <label class="label" for="state">公開状態</label>
+            <select id="state">
+              <option value="公開">公開</option>
+              <option value="下書き">下書き</option>
+              <option value="非公開">非公開</option>
+            </select>
+          </div>
         </div>
 
         <div class="field">
-          <label class="label" for="state">公開状態</label>
-          <select id="state">
-            <option value="公開">公開</option>
-            <option value="下書き">下書き</option>
-            <option value="非公開">非公開</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="field">
-        <label class="label" for="title">活動報告タイトル</label>
-        <input id="title" required>
-      </div>
-
-      <div class="field">
-        <label class="label" for="body">活動報告本文</label>
-        <textarea id="body" required></textarea>
-      </div>
-
-      <div class="grid">
-        <div class="field">
-          <label class="label" for="video">YouTube URL</label>
-          <input id="video" type="url" placeholder="https://www.youtube.com/watch?v=...">
+          <label class="label" for="title">活動報告タイトル</label>
+          <input id="title" required>
         </div>
 
         <div class="field">
-          <label class="label" for="external">関連リンク</label>
-          <input id="external" type="url" placeholder="任意">
+          <label class="label" for="body">活動報告本文</label>
+          <textarea id="body" required></textarea>
         </div>
-      </div>
 
-      <div class="field">
-        <label class="label" for="images">活動報告写真（最大6枚）</label>
-        <input id="images" type="file" accept="image/*" multiple>
-        <p class="help">新しい記事は選んだ写真を保存します。編集時は既存写真も残ります。</p>
-        <div id="preview" class="preview"></div>
-      </div>
+        <div class="grid">
+          <div class="field">
+            <label class="label" for="video">YouTube URL</label>
+            <input id="video" type="url" placeholder="https://www.youtube.com/watch?v=...">
+          </div>
 
-      <div class="actions">
-        <button class="button gold" type="submit">この記事を保存する</button>
-        <button id="cancel" class="button secondary" type="button">入力をクリア</button>
-      </div>
-    </form>
+          <div class="field">
+            <label class="label" for="external">関連リンク</label>
+            <input id="external" type="url" placeholder="任意">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label" for="images">活動報告写真（最大6枚）</label>
+          <input id="images" type="file" accept="image/*" multiple>
+          <p class="help">新しい記事は選んだ写真を保存します。編集時は既存写真も残ります。</p>
+          <div id="preview" class="preview"></div>
+        </div>
+
+        <div class="actions">
+          <button class="button gold" type="submit">この記事を保存する</button>
+          <button id="cancel" class="button secondary" type="button">入力をクリア</button>
+        </div>
+      </form>
+    </div>
 
     <a class="site-link" href="https://ichirohns-jpg.github.io/-suzuki-masato-dx/" target="_blank" rel="noopener">公開ページを開く</a>
   </main>
@@ -240,7 +244,10 @@
       }).then(function(data){
         if(!data.success)throw new Error(data.message||"読み込みに失敗しました。");
         render(data.news||[]);
-        status("読み込みました。","ok")
+        $("operationArea").classList.remove("hidden");
+        $("password").readOnly=true;
+        $("load").textContent="認証済み";
+        status("認証しました。更新画面を開きました。","ok")
       }).catch(function(error){
         status(error.message,"error")
       })
