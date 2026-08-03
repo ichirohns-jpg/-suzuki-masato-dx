@@ -46,8 +46,11 @@
 
     image.onerror = function () {
       var figure = image.closest("figure");
-      if (figure) figure.remove();
-      else image.remove();
+      if (figure) {
+        figure.remove();
+      } else {
+        image.remove();
+      }
     };
 
     parent.appendChild(image);
@@ -82,7 +85,9 @@
     var match;
 
     while ((match = pattern.exec(source))) {
-      node.appendChild(document.createTextNode(source.slice(last, match.index)));
+      node.appendChild(
+        document.createTextNode(source.slice(last, match.index))
+      );
 
       var link = document.createElement("a");
       link.href = match[0];
@@ -164,7 +169,9 @@
     addText(left, "h2", "section-title", title);
     heading.appendChild(left);
 
-    if (note) addText(heading, "p", "section-label", note);
+    if (note) {
+      addText(heading, "p", "section-label", note);
+    }
 
     root.appendChild(heading);
     app.appendChild(root);
@@ -273,7 +280,9 @@
     var collage = el("div", "hero-collage");
     var list = photos.slice(1, 5);
 
-    if (!list.length) list = photos.slice(0, 4);
+    if (!list.length) {
+      list = photos.slice(0, 4);
+    }
 
     addText(copy, "p", "hero-kicker", person.role || "地域の声を県政へ");
     addText(copy, "h2", "hero-name", person.name || "鈴木正人");
@@ -340,7 +349,6 @@
 
   function renderActivity() {
     var article = D.article;
-    if (!article) return;
 
     var root = section(
       "activity",
@@ -348,6 +356,16 @@
       "活動報告",
       "最新の活動"
     );
+
+    if (!article) {
+      addText(
+        root,
+        "p",
+        "activity-empty",
+        "現在、公開中の活動報告はありません。"
+      );
+      return;
+    }
 
     var layout = el("div", "activity-layout");
     var media = el("div");
@@ -552,7 +570,12 @@
   }
 
   function loadRemoteArticle() {
-    if (!GAS_URL) return Promise.resolve(null);
+    if (!GAS_URL) {
+      return Promise.resolve({
+        ok: false,
+        article: null
+      });
+    }
 
     var url =
       GAS_URL +
@@ -561,16 +584,30 @@
       "&limit=1&_=" +
       Date.now();
 
-    return fetch(url, { cache: "no-store" })
+    return fetch(url, {
+      cache: "no-store"
+    })
       .then(function (response) {
         return response.json();
       })
       .then(function (data) {
-        var list = data && Array.isArray(data.news) ? data.news : [];
-        return list.length ? normalizeNews(list[0]) : null;
+        var list =
+          data && Array.isArray(data.news)
+            ? data.news
+            : [];
+
+        return {
+          ok: true,
+          article: list.length
+            ? normalizeNews(list[0])
+            : null
+        };
       })
       .catch(function () {
-        return null;
+        return {
+          ok: false,
+          article: null
+        };
       });
   }
 
@@ -603,13 +640,17 @@
 
   render();
 
-  loadRemoteArticle().then(function (article) {
-    if (!article) return;
+  loadRemoteArticle().then(function (result) {
+    if (!result || !result.ok) return;
 
-    D.article = article;
-    D.articleImages = article.images.length
-      ? article.images
-      : D.articleImages;
+    D.article = result.article;
+
+    if (
+      result.article &&
+      result.article.images.length
+    ) {
+      D.articleImages = result.article.images;
+    }
 
     render();
   });
