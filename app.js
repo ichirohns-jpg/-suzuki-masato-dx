@@ -7,18 +7,83 @@
   var app = document.getElementById("app");
   var photos = (D.commonImages || []).filter(Boolean);
 
-  function text(value) { return value == null ? "" : String(value); }
+  function text(value) {
+    return value == null ? "" : String(value);
+  }
+
+  function listValue(value) {
+    if (Array.isArray(value)) return value;
+
+    var raw = text(value).trim();
+
+    if (!raw) return [];
+
+    try {
+      var parsed = JSON.parse(raw);
+
+      if (Array.isArray(parsed)) return parsed;
+    } catch (error) {}
+
+    return raw.split(/[\n,]/).map(function (item) {
+      return item.trim();
+    }).filter(Boolean);
+  }
+
+  function normalizeImages(item) {
+    if (!item) return [];
+
+    var images = listValue(
+      item.images ||
+      item.imageUrls ||
+      item.photos ||
+      item.photoUrls
+    );
+
+    [1, 2, 3, 4, 5, 6].forEach(function (number) {
+      var value =
+        item["image" + number] ||
+        item["image_" + number] ||
+        item["photo" + number] ||
+        item["photo_" + number];
+
+      if (value) images.push(value);
+    });
+
+    return images.map(function (value) {
+      return text(value).trim();
+    }).filter(Boolean);
+  }
+
+  function articleVideo(item) {
+    if (!item) return "";
+
+    return text(
+      item.videoUrl ||
+      item.youtubeUrl ||
+      item.youtube_url ||
+      item.youtubeURL ||
+      item.youtube ||
+      item.video ||
+      ""
+    ).trim();
+  }
 
   function el(tag, className) {
     var node = document.createElement(tag);
-    if (className) node.className = className;
+
+    if (className) {
+      node.className = className;
+    }
+
     return node;
   }
 
   function addText(parent, tag, className, value) {
     var node = el(tag, className);
+
     node.textContent = text(value);
     parent.appendChild(node);
+
     return node;
   }
 
@@ -38,9 +103,11 @@
     if (!src) return null;
 
     var image = el("img", className || "");
+
     image.src = src;
     image.alt = alt || "鈴木正人の活動写真";
     image.loading = "lazy";
+    image.decoding = "async";
 
     image.onerror = function () {
       var figure = image.closest("figure");
@@ -53,6 +120,7 @@
     };
 
     parent.appendChild(image);
+
     return image;
   }
 
@@ -72,6 +140,7 @@
     }
 
     parent.appendChild(link);
+
     return link;
   }
 
@@ -215,12 +284,15 @@
     return root;
   }
 
-  function rail(parent, list, label) {
+  function rail(parent, list, label, extraClass) {
     var images = (list || []).filter(Boolean);
 
     if (!images.length) return;
 
-    var row = el("div", "photo-rail");
+    var row = el(
+      "div",
+      "photo-rail" + (extraClass ? " " + extraClass : "")
+    );
 
     images.forEach(function (src, index) {
       var figure = el("figure", "photo-card");
@@ -247,6 +319,10 @@
   function socialInfo(url) {
     var value = text(url).toLowerCase();
 
+    if (value.indexOf("ameblo.jp") >= 0) {
+      return null;
+    }
+
     if (value.indexOf("facebook.com") >= 0) {
       return {
         name: "Facebook（フェイスブック）",
@@ -271,14 +347,6 @@
         name: "X（旧Twitter）",
         icon: "X",
         css: "x"
-      };
-    }
-
-    if (value.indexOf("ameblo.jp") >= 0) {
-      return {
-        name: "アメブロ",
-        icon: "A",
-        css: "ameblo"
       };
     }
 
@@ -321,6 +389,10 @@
   }
 
   function addSocialDestination(parent, name, url, icon, css) {
+    if (!url || text(url).toLowerCase().indexOf("ameblo.jp") >= 0) {
+      return;
+    }
+
     if (isYoutubeUrl(url) && youtubeId(url)) {
       addYoutube(parent, url);
       return;
@@ -355,6 +427,8 @@
 
     urls.forEach(function (url) {
       var info = socialInfo(url);
+
+      if (!info) return;
 
       if (isYoutubeUrl(url) && youtubeId(url)) {
         return;
@@ -572,16 +646,17 @@
       return;
     }
 
-    var layout = el("div", "activity-layout");
-    var media = el("div");
-    var content = el("div", "activity-content");
+    var images = normalizeImages(article);
 
-    addImage(
-      media,
-      (D.articleImages || photos)[0] || photos[0],
-      "活動報告の代表写真",
-      "feature-image"
-    );
+    if (!images.length) {
+      images = (D.articleImages || photos).filter(Boolean);
+    }
+
+    if (images.length) {
+      rail(root, images, "活動写真", "activity-photo-rail");
+    }
+
+    var content = el("div", "activity-content activity-content-full");
 
     addText(
       content,
@@ -598,25 +673,26 @@
     );
 
     addBody(content, article.body);
+
+    if (validUrl(article.externalUrl)) {
+      var actions = el("div", "button-row article-actions");
+
+      addArticleLink(
+        actions,
+        "関連リンクを開く",
+        article.externalUrl,
+        "button"
+      );
+
+      if (actions.children.length) {
+        content.appendChild(actions);
+      }
+    }
+
     addYoutube(content, article.youtube || D.youtube);
     articleSocialLinks(content);
 
-    addArticleLink(
-      content,
-      "関連リンクを開く",
-      article.externalUrl,
-      "button"
-    );
-
-    layout.appendChild(media);
-    layout.appendChild(content);
-    root.appendChild(layout);
-
-    rail(
-      root,
-      D.articleImages || photos,
-      "活動写真"
-    );
+    root.appendChild(content);
   }
 
   function archiveDateParts(value) {
@@ -850,26 +926,36 @@
           article.title || "無題の活動報告"
         );
 
-        addBody(content, article.body);
-        addYoutube(content, article.youtube || "");
-        articleSocialLinks(content);
+        var articleImages = normalizeImages(article);
 
-        if ((article.images || []).filter(Boolean).length) {
+        if (articleImages.length) {
           rail(
             content,
-            article.images,
-            "活動写真"
+            articleImages,
+            "活動写真",
+            "archive-photo-rail"
           );
         }
 
+        addBody(content, article.body);
+
         if (validUrl(article.externalUrl)) {
+          var archiveActions = el("div", "button-row article-actions");
+
           addArticleLink(
-            content,
+            archiveActions,
             "関連リンクを開く",
             article.externalUrl,
             "button"
           );
+
+          if (archiveActions.children.length) {
+            content.appendChild(archiveActions);
+          }
         }
+
+        addYoutube(content, article.youtube || "");
+        articleSocialLinks(content);
 
         card.appendChild(summary);
         card.appendChild(content);
@@ -1044,6 +1130,8 @@
       .forEach(function (url) {
         var info = socialInfo(url);
 
+        if (!info) return;
+
         addSocialDestination(
           grid,
           info.name,
@@ -1098,8 +1186,8 @@
       date: item.date,
       title: item.title,
       body: item.body,
-      images: item.images || [],
-      youtube: item.videoUrl || item.youtube || "",
+      images: normalizeImages(item),
+      youtube: articleVideo(item),
       externalUrl: item.externalUrl || "",
       status: item.status || ""
     };
