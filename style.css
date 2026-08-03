@@ -1,1369 +1,1088 @@
-(function () {
-  "use strict";
+:root {
+  --green-950: #073f2d;
+  --green-900: #0b6b4c;
+  --green-700: #16865b;
+  --green-500: #55c57e;
+  --mint: #e6f6eb;
+  --paper: #f8fbf7;
+  --gold: #e8b84f;
+  --gold-pale: #fff3cd;
+  --ink: #1c3026;
+  --muted: #65776c;
+  --line: #d7e8da;
+  --white: #ffffff;
+  --shadow: 0 18px 45px rgba(7, 63, 45, .12);
+  --shadow-small: 0 8px 22px rgba(7, 63, 45, .09);
+  --radius-xl: 30px;
+  --radius-lg: 22px;
+  --radius-md: 15px;
+}
 
-  var D = window.DX_DATA || {};
-  var GAS_URL = D.gasUrl || "";
-  var SITE_KEY = D.siteKey || "suzuki-masato-dx";
-  var app = document.getElementById("app");
-  var photos = (D.commonImages || []).filter(Boolean);
+* { box-sizing: border-box; }
 
-  function text(value) { return value == null ? "" : String(value); }
+html {
+  scroll-behavior: smooth;
+  background: var(--paper);
+}
 
-  function listValue(value) {
-    if (Array.isArray(value)) return value;
+body {
+  min-width: 320px;
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 100% 0, rgba(85, 197, 126, .16), transparent 22rem),
+    var(--paper);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+  font-size: 17px;
+  line-height: 1.8;
+  -webkit-text-size-adjust: 100%;
+}
 
-    var raw = text(value).trim();
+a { color: inherit; }
+button { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+img { display: block; max-width: 100%; }
+h1, h2, h3, p, figure { margin: 0; }
+ul { margin: 0; padding: 0; }
 
-    if (!raw) return [];
+.site-header {
+  position: sticky;
+  z-index: 20;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 74px;
+  padding: 10px max(14px, calc((100vw - 1120px) / 2));
+  background: rgba(255, 255, 255, .96);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 5px 18px rgba(7, 63, 45, .08);
+  backdrop-filter: blur(12px);
+}
 
-    try {
-      var parsed = JSON.parse(raw);
+.brand-mark {
+  display: block;
+  flex: 0 0 53px;
+  width: 53px;
+  height: 53px;
+  overflow: hidden;
+  border: 3px solid var(--gold);
+  border-radius: 50%;
+  background: var(--mint);
+  box-shadow: 0 3px 0 rgba(232, 184, 79, .2);
+}
 
-      if (Array.isArray(parsed)) return parsed;
-    } catch (error) {}
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
 
-    return raw.split(/[\n,]/).map(function (item) {
-      return item.trim();
-    }).filter(Boolean);
+.header-copy { min-width: 0; }
+
+.eyebrow {
+  color: var(--green-700);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  line-height: 1.2;
+}
+
+.site-header h1 {
+  overflow: hidden;
+  color: var(--green-950);
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 950;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-share {
+  margin-left: auto;
+  min-height: 42px;
+  padding: 8px 13px;
+  border: 1px solid var(--green-900);
+  border-radius: 999px;
+  background: var(--green-900);
+  color: var(--white);
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.page {
+  width: min(calc(100% - 28px), 1120px);
+  margin: auto;
+  padding: 24px 0 62px;
+}
+
+.hero { margin-bottom: 28px; }
+
+.hero-inner {
+  display: grid;
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap: clamp(24px, 5vw, 62px);
+  align-items: center;
+  padding: clamp(24px, 5vw, 55px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, #fff 0%, #fff 55%, #e3f5e8 100%);
+  box-shadow: var(--shadow);
+}
+
+.hero-copy { min-width: 0; }
+
+.hero-kicker,
+.section-kicker {
+  color: var(--green-700);
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: .16em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.hero-name {
+  max-width: 8em;
+  margin-top: 8px;
+  color: var(--green-950);
+  font-size: clamp(39px, 6vw, 72px);
+  font-weight: 950;
+  letter-spacing: .04em;
+  line-height: 1.12;
+}
+
+.hero-role {
+  margin-top: 13px;
+  color: var(--green-900);
+  font-size: clamp(17px, 2vw, 22px);
+  font-weight: 850;
+  line-height: 1.55;
+}
+
+.hero-lead {
+  max-width: 35em;
+  margin-top: 18px;
+  color: #345240;
+  font-size: clamp(17px, 2vw, 20px);
+  font-weight: 560;
+  line-height: 1.95;
+}
+
+.hero-actions,
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 22px;
+}
+
+.button,
+.share-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 10px 16px;
+  border: 1px solid var(--green-900);
+  border-radius: 999px;
+  background: var(--green-900);
+  color: var(--white);
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.25;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 5px 12px rgba(7, 63, 45, .12);
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.button.secondary {
+  border-color: var(--line);
+  background: var(--white);
+  color: var(--green-950);
+}
+
+.button.gold {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: var(--green-950);
+}
+
+.share-button {
+  border-color: var(--gold);
+  background: var(--gold-pale);
+  color: var(--green-950);
+}
+
+.button:hover,
+.share-button:hover,
+.social-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-small);
+}
+
+.hero-visual {
+  position: relative;
+  min-width: 0;
+  padding-left: 12px;
+}
+
+.hero-collage {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(115px, .65fr);
+  grid-template-rows: auto auto;
+  gap: 11px;
+  align-items: end;
+}
+
+.collage-main,
+.collage-small,
+.collage-mini figure {
+  overflow: hidden;
+  background: var(--mint);
+  box-shadow: 0 11px 25px rgba(7, 63, 45, .15);
+}
+
+.collage-main {
+  grid-row: 1 / span 2;
+  border: 5px solid var(--white);
+  border-radius: 28px 28px 28px 7px;
+  transform: rotate(-1.5deg);
+}
+
+.collage-small {
+  border: 5px solid var(--white);
+  border-radius: 22px 8px 22px 22px;
+  transform: rotate(2deg);
+}
+
+.collage-main img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+
+.collage-small img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.collage-mini {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.collage-mini figure {
+  border: 3px solid var(--white);
+  border-radius: 15px;
+}
+
+.collage-mini img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.collage-note {
+  grid-column: 2;
+  color: var(--green-700);
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-align: right;
+}
+
+.hero-portrait {
+  position: absolute;
+  z-index: 3;
+  bottom: 18px;
+  left: -22px;
+  width: clamp(78px, 12vw, 128px);
+  overflow: hidden;
+  border: 7px solid var(--white);
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: 0 12px 25px rgba(7, 63, 45, .22);
+  transform: rotate(-5deg);
+}
+
+.hero-portrait img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.portrait-label {
+  position: absolute;
+  right: -7px;
+  bottom: 0;
+  left: -7px;
+  padding: 3px 2px 4px;
+  background: var(--green-900);
+  color: var(--white);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1.15;
+  text-align: center;
+}
+
+.section {
+  margin-top: 26px;
+  padding: clamp(22px, 4vw, 42px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: rgba(255,255,255,.98);
+  box-shadow: var(--shadow-small);
+  scroll-margin-top: 92px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 24px;
+  padding-bottom: 13px;
+  border-bottom: 3px solid var(--mint);
+}
+
+.section-title {
+  margin-top: 3px;
+  color: var(--green-950);
+  font-size: clamp(29px, 4vw, 45px);
+  font-weight: 950;
+  letter-spacing: .04em;
+  line-height: 1.25;
+}
+
+.section-label {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.activity-layout,
+.profile-layout,
+.consultation-layout {
+  display: grid;
+  grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+  gap: clamp(22px, 4vw, 48px);
+  align-items: start;
+}
+
+.feature-image,
+.profile-image,
+.consultation-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 23px;
+  box-shadow: var(--shadow-small);
+}
+
+.activity-content,
+.profile-content,
+.consultation-content {
+  min-width: 0;
+}
+
+.date-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 5px 13px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--green-950);
+  font-size: 18px;
+  font-weight: 950;
+  line-height: 1.3;
+}
+
+.content-title {
+  margin: 10px 0 14px;
+  color: var(--green-900);
+  font-size: clamp(25px, 3vw, 38px);
+  font-weight: 950;
+  line-height: 1.35;
+}
+
+.body-text {
+  color: #2b4938;
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 2;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.body-text a {
+  color: var(--green-900);
+  font-weight: 850;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.photo-rail {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  margin: 25px -4px 0;
+  padding: 4px 4px 14px;
+  scroll-snap-type: x mandatory;
+  scrollbar-color: var(--green-500) var(--mint);
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.activity > .activity-photo-rail {
+  margin-top: 0;
+  margin-bottom: 28px;
+}
+
+.activity-content-full {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.article-actions {
+  margin-top: 19px;
+}
+
+.photo-card {
+  position: relative;
+  flex: 0 0 min(320px, 78vw);
+  overflow: hidden;
+  border-radius: 19px;
+  background: var(--mint);
+  box-shadow: var(--shadow-small);
+  scroll-snap-align: start;
+}
+
+.photo-card img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto;
+  object-fit: contain;
+  background: #eef8f0;
+}
+
+.photo-card figcaption {
+  padding: 10px 13px 12px;
+  background: var(--white);
+  color: var(--green-950);
+  font-size: 16px;
+  font-weight: 850;
+  line-height: 1.3;
+}
+
+.video {
+  overflow: hidden;
+  margin-top: 20px;
+  border-radius: 18px;
+  background: #092218;
+  box-shadow: var(--shadow-small);
+}
+
+.video iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+}
+
+.article-social-links {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 2px solid var(--mint);
+}
+
+.article-social-title {
+  margin: 0 0 10px;
+  color: var(--green-950);
+  font-size: 18px;
+  font-weight: 950;
+  line-height: 1.4;
+}
+
+.article-social-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.article-social-button {
+  display: inline-flex;
+  align-items: center;
+  flex: 1 1 220px;
+  gap: 10px;
+  min-height: 58px;
+  padding: 11px 17px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--green-950);
+  font-size: 17px;
+  font-weight: 900;
+  text-decoration: none;
+  box-shadow: 0 4px 10px rgba(7,63,45,.07);
+}
+
+.article-social-button.copy {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.article-social-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 35px;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: var(--green-900);
+  color: var(--white);
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.article-social-button.facebook .article-social-icon {
+  background: #1877f2;
+}
+
+.article-social-button.instagram .article-social-icon {
+  background: linear-gradient(
+    135deg,
+    #792cff,
+    #ee2a7b 60%,
+    #ffb347
+  );
+}
+
+.article-social-button.x .article-social-icon {
+  background: #111;
+}
+
+.article-social-button.youtube .article-social-icon {
+  background: #e62117;
+}
+
+.article-social-button.line .article-social-icon {
+  background: #06c755;
+}
+
+.article-social-button.copy .article-social-icon {
+  background: var(--green-700);
+}
+
+.profile-layout.reverse .profile-image,
+.consultation-layout.reverse .consultation-image {
+  order: 2;
+}
+
+.profile-name {
+  margin: 0 0 7px;
+  color: var(--green-900);
+  font-size: clamp(26px, 3vw, 38px);
+  font-weight: 950;
+  line-height: 1.3;
+}
+
+.role-line {
+  margin-bottom: 16px;
+  color: var(--green-700);
+  font-size: 19px;
+  font-weight: 850;
+  line-height: 1.7;
+}
+
+.policy-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.policy-item {
+  position: relative;
+  min-height: 100%;
+  padding: 17px 17px 17px 42px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--mint);
+  color: #2b4938;
+  font-size: 18px;
+  font-weight: 750;
+  line-height: 1.7;
+}
+
+.policy-item::before {
+  position: absolute;
+  top: 17px;
+  left: 15px;
+  display: grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--green-950);
+  content: "â";
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.consultation-box {
+  padding: 21px;
+  border-radius: 19px;
+  background: var(--mint);
+}
+
+.social-layout {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  gap: clamp(22px, 4vw, 44px);
+  align-items: center;
+}
+
+.social-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 21px;
+}
+
+.social-lead {
+  margin-bottom: 18px;
+  color: #345240;
+  font-size: 19px;
+  font-weight: 560;
+  line-height: 1.9;
+}
+
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px;
+}
+
+.social-grid .video {
+  grid-column: 1 / -1;
+  width: 100%;
+  margin-top: 0;
+}
+
+.social-card {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+  min-height: 72px;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--white);
+  text-decoration: none;
+  box-shadow: 0 5px 14px rgba(7,63,45,.06);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.social-icon {
+  display: grid;
+  flex: 0 0 40px;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--green-900);
+  color: var(--white);
+  font-size: 19px;
+  font-weight: 950;
+}
+
+.social-card.facebook .social-icon {
+  background: #1877f2;
+}
+
+.social-card.instagram .social-icon {
+  background: linear-gradient(
+    135deg,
+    #792cff,
+    #ee2a7b 60%,
+    #ffb347
+  );
+}
+
+.social-card.x .social-icon {
+  background: #111;
+}
+
+.social-card.youtube .social-icon {
+  background: #e62117;
+}
+
+.social-copy {
+  min-width: 0;
+}
+
+.social-name,
+.social-url {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.social-name {
+  font-size: 15px;
+  font-weight: 950;
+  line-height: 1.35;
+}
+
+.social-url {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+.site-footer {
+  padding: 28px 18px 45px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .site-header {
+    min-height: 68px;
+    padding: 9px 12px;
   }
 
-  function normalizeYoutubeUrl(value) {
-    return text(value).trim().replace(/\s+/g, "");
+  .brand-mark {
+    flex-basis: 46px;
+    width: 46px;
+    height: 46px;
   }
 
-  function normalizeImages(item) {
-    if (!item) return [];
-
-    var images = listValue(
-      item.images ||
-      item.imageUrls ||
-      item.photos ||
-      item.photoUrls
-    );
-
-    [1, 2, 3, 4, 5, 6].forEach(function (number) {
-      var value =
-        item["image" + number] ||
-        item["image_" + number] ||
-        item["photo" + number] ||
-        item["photo_" + number];
-
-      if (value) images.push(value);
-    });
-
-    return images.map(function (value) {
-      return text(value).trim();
-    }).filter(Boolean);
+  .eyebrow {
+    font-size: 10px;
   }
 
-  function articleVideo(item) {
-    if (!item) return "";
-
-    var value =
-      item.videoUrl ||
-      item.videoURL ||
-      item.video_url ||
-      item.youtubeUrl ||
-      item.youtube_url ||
-      item.youtubeURL ||
-      item.youtube ||
-      item.video ||
-      item["åç»URL"] ||
-      item["YouTube URL"] ||
-      item["YouTube"] ||
-      "";
-
-    return normalizeYoutubeUrl(value);
+  .site-header h1 {
+    font-size: 18px;
   }
 
-  function socialUrls() {
-    var urls = [];
-
-    function add(value) {
-      if (Array.isArray(value)) {
-        value.forEach(add);
-        return;
-      }
-
-      if (value && typeof value === "object") {
-        add(value.url || value.href || value.link || value.value || "");
-        return;
-      }
-
-      listValue(value).forEach(function (item) {
-        var url = text(item).trim();
-
-        if (!url || /ameblo\.jp/i.test(url)) return;
-
-        if (urls.indexOf(url) < 0) {
-          urls.push(url);
-        }
-      });
-    }
-
-    [
-      D.sns,
-      D.socials,
-      D.facebook,
-      D.facebookUrl,
-      D.facebookURL,
-      D.x,
-      D.xUrl,
-      D.xURL,
-      D.twitter,
-      D.twitterUrl,
-      D.twitterURL,
-      D.instagram,
-      D.instagramUrl,
-      D.instagramURL,
-      D.youtubeChannel,
-      D.youtubeChannelUrl,
-      D.youtube,
-      D.youtubeUrl,
-      D.youtubeURL,
-      D.youtube_url
-    ].forEach(add);
-
-    return urls;
+  .header-share {
+    min-height: 38px;
+    padding: 7px 11px;
+    font-size: 13px;
   }
 
-  function el(tag, className) {
-    var node = document.createElement(tag);
-    if (className) node.className = className;
-    return node;
+  .page {
+    width: min(calc(100% - 18px), 620px);
+    padding-top: 10px;
   }
 
-  function addText(parent, tag, className, value) {
-    var node = el(tag, className);
-    node.textContent = text(value);
-    parent.appendChild(node);
-    return node;
+  .hero-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 24px;
+    padding: 16px;
+    border-radius: 25px;
   }
 
-  function validUrl(url) {
-    return /^https?:\/\//i.test(text(url).trim());
+  .hero-visual {
+    order: -1;
+    padding-left: 17px;
   }
 
-  function hostname(url) {
-    try {
-      return new URL(url).hostname.replace(/^www\./i, "");
-    } catch (error) {
-      return "å¬å¼ãªã³ã¯";
-    }
+  .hero-collage {
+    grid-template-columns: minmax(0, 1.4fr) minmax(95px, .6fr);
+    gap: 8px;
   }
 
-  function addImage(parent, src, alt, className) {
-    if (!src) return null;
-
-    var image = el("img", className || "");
-    image.src = src;
-    image.alt = alt || "é´æ¨æ­£äººã®æ´»ååç";
-    image.loading = "lazy";
-    image.decoding = "async";
-
-    image.onerror = function () {
-      var figure = image.closest("figure");
-
-      if (figure) {
-        figure.remove();
-      } else {
-        image.remove();
-      }
-    };
-
-    parent.appendChild(image);
-    return image;
+  .collage-main,
+  .collage-small {
+    border-width: 4px;
   }
 
-  function addLink(parent, label, url, className) {
-    if (!url || (!validUrl(url) && text(url).charAt(0) !== "#")) {
-      return null;
-    }
-
-    var link = el("a", className || "button");
-
-    link.href = url;
-    link.textContent = label;
-
-    if (text(url).charAt(0) !== "#") {
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-    }
-
-    parent.appendChild(link);
-    return link;
+  .hero-portrait {
+    bottom: 13px;
+    left: -2px;
+    width: 81px;
+    border-width: 5px;
   }
 
-  function addBody(parent, value) {
-    if (!value) return;
-
-    var node = el("div", "body-text");
-    var source = text(value);
-    var pattern = /(https?:\/\/[^\s]+)/gi;
-    var last = 0;
-    var match;
-
-    while ((match = pattern.exec(source))) {
-      node.appendChild(
-        document.createTextNode(source.slice(last, match.index))
-      );
-
-      if (isYoutubeUrl(match[0])) {
-        addYoutube(node, match[0]);
-      } else {
-        var link = document.createElement("a");
-
-        link.href = match[0];
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        link.textContent = match[0];
-
-        node.appendChild(link);
-      }
-
-      last = match.index + match[0].length;
-    }
-
-    node.appendChild(document.createTextNode(source.slice(last)));
-    parent.appendChild(node);
+  .collage-note {
+    font-size: 11px;
   }
 
-  function isYoutubeUrl(url) {
-    return /(?:youtube\.com|youtube-nocookie\.com|youtu\.be)/i.test(
-      normalizeYoutubeUrl(url)
-    );
+  .hero-name {
+    max-width: none;
+    font-size: clamp(38px, 12vw, 56px);
   }
 
-  function youtubeId(url) {
-    var match = normalizeYoutubeUrl(url).match(
-      /(?:[?&]v=|youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|shorts\/|live\/|embed\/|v\/))([A-Za-z0-9_-]{6,})/i
-    );
-
-    return match ? match[1] : "";
+  .hero-lead {
+    font-size: 18px;
   }
 
-  function addYoutube(parent, url) {
-    var id = youtubeId(url);
-
-    if (!id) return;
-
-    var box = el("div", "video");
-    var frame = document.createElement("iframe");
-
-    frame.src =
-      "https://www.youtube-nocookie.com/embed/" +
-      id +
-      "?playsinline=1&rel=0&modestbranding=1";
-
-    frame.title = "æ´»åå ±ååç»";
-    frame.loading = "lazy";
-    frame.referrerPolicy = "strict-origin-when-cross-origin";
-
-    frame.allow =
-      "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-
-    frame.allowFullscreen = true;
-
-    box.appendChild(frame);
-    parent.appendChild(box);
+  .hero-actions,
+  .button-row {
+    display: grid;
+    grid-template-columns: 1fr;
   }
 
-  function addArticleLink(parent, label, url, className) {
-    if (!url) return null;
-
-    if (isYoutubeUrl(url) && youtubeId(url)) {
-      return null;
-    }
-
-    return addLink(parent, label, url, className);
+  .button,
+  .share-button {
+    width: 100%;
+    min-height: 54px;
   }
 
-  function share(button) {
-    button.onclick = function () {
-      var url = D.publicUrl || window.location.href;
-
-      if (navigator.share) {
-        navigator
-          .share({
-            title: D.title,
-            text: D.description,
-            url: url
-          })
-          .catch(function () {});
-
-        return;
-      }
-
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(function () {
-          button.textContent = "ãªã³ã¯ãã³ãã¼ãã¾ãã";
-
-          window.setTimeout(function () {
-            button.textContent = "ãã®ãã¼ã¸ãã·ã§ã¢";
-          }, 2200);
-        });
-
-        return;
-      }
-
-      window.prompt("URLãã³ãã¼ãã¦ãã ãã", url);
-    };
+  .section {
+    margin-top: 19px;
+    padding: 21px 15px 22px;
+    border-radius: 25px;
   }
 
-  function section(id, kicker, title, note) {
-    var root = el("section", "section");
-
-    root.id = id || "";
-
-    var heading = el("div", "section-heading");
-    var left = el("div");
-
-    addText(left, "p", "section-kicker", kicker);
-    addText(left, "h2", "section-title", title);
-
-    heading.appendChild(left);
-
-    if (note) {
-      addText(heading, "p", "section-label", note);
-    }
-
-    root.appendChild(heading);
-    app.appendChild(root);
-
-    return root;
+  .section-heading {
+    display: block;
+    margin-bottom: 19px;
   }
 
-  function rail(parent, list, label, extraClass) {
-    var images = (list || []).filter(Boolean);
-
-    if (!images.length) return;
-
-    var row = el(
-      "div",
-      "photo-rail" + (extraClass ? " " + extraClass : "")
-    );
-
-    images.forEach(function (src, index) {
-      var figure = el("figure", "photo-card");
-
-      addImage(
-        figure,
-        src,
-        label + "åç" + (index + 1)
-      );
-
-      addText(
-        figure,
-        "figcaption",
-        "",
-        label + " " + (index + 1)
-      );
-
-      row.appendChild(figure);
-    });
-
-    parent.appendChild(row);
+  .section-title {
+    font-size: 30px;
   }
 
-  function socialInfo(url) {
-    var value = text(url).toLowerCase();
-
-    if (value.indexOf("ameblo.jp") >= 0) {
-      return null;
-    }
-
-    if (value.indexOf("facebook.com") >= 0) {
-      return {
-        name: "Facebookï¼ãã§ã¤ã¹ããã¯ï¼",
-        icon: "f",
-        css: "facebook"
-      };
-    }
-
-    if (value.indexOf("instagram.com") >= 0) {
-      return {
-        name: "Instagramï¼ã¤ã³ã¹ã¿ã°ã©ã ï¼",
-        icon: "â",
-        css: "instagram"
-      };
-    }
-
-    if (
-      value.indexOf("twitter.com") >= 0 ||
-      value.indexOf("x.com") >= 0
-    ) {
-      return {
-        name: "Xï¼æ§Twitterï¼",
-        icon: "X",
-        css: "x"
-      };
-    }
-
-    if (
-      value.indexOf("youtube.com") >= 0 ||
-      value.indexOf("youtu.be") >= 0
-    ) {
-      return {
-        name: "YouTube",
-        icon: "â¶",
-        css: "youtube"
-      };
-    }
-
-    return {
-      name: "å¬å¼ãªã³ã¯",
-      icon: "â",
-      css: "other"
-    };
+  .activity-layout,
+  .profile-layout,
+  .consultation-layout,
+  .social-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
   }
 
-  function socialCard(parent, name, url, icon, css) {
-    if (!validUrl(url)) return;
-
-    var link = el("a", "social-card " + (css || "other"));
-
-    link.href = url;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-
-    addText(link, "span", "social-icon", icon);
-
-    var copy = el("span", "social-copy");
-
-    addText(copy, "strong", "social-name", name);
-    addText(copy, "small", "social-url", hostname(url));
-
-    link.appendChild(copy);
-    parent.appendChild(link);
+  .profile-layout.reverse .profile-image,
+  .consultation-layout.reverse .consultation-image {
+    order: initial;
   }
 
-  function addSocialDestination(parent, name, url, icon, css) {
-    if (!url || text(url).toLowerCase().indexOf("ameblo.jp") >= 0) {
-      return;
-    }
-
-    if (isYoutubeUrl(url) && youtubeId(url)) {
-      addYoutube(parent, url);
-      return;
-    }
-
-    socialCard(parent, name, url, icon, css);
+  .feature-image,
+  .profile-image,
+  .consultation-image {
+    aspect-ratio: 4 / 3;
+    border-radius: 19px;
   }
 
-  function articleSocialLinks(parent) {
-    var box = el("div", "article-social-links");
-    var grid = el("div", "article-social-grid");
-
-    addText(
-      box,
-      "h4",
-      "article-social-title",
-      "ãã®è¨äºãã·ã§ã¢"
-    );
-
-    var shareUrl = D.publicUrl || window.location.href;
-    var shareTitle = D.title || "é´æ¨æ­£äººã®æ´»åå ±å";
-
-    function addShareLink(label, icon, css, url) {
-      var link = el("a", "article-social-button " + css);
-
-      link.href = url;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-
-      addText(link, "span", "article-social-icon", icon);
-      addText(link, "span", "article-social-name", label);
-
-      grid.appendChild(link);
-    }
-
-    addShareLink(
-      "Facebookã§ã·ã§ã¢",
-      "f",
-      "facebook",
-      "https://www.facebook.com/sharer/sharer.php?u=" +
-        encodeURIComponent(shareUrl)
-    );
-
-    addShareLink(
-      "Xã§ã·ã§ã¢",
-      "X",
-      "x",
-      "https://twitter.com/intent/tweet?text=" +
-        encodeURIComponent(shareTitle) +
-        "&url=" +
-        encodeURIComponent(shareUrl)
-    );
-
-    addShareLink(
-      "LINEã§éã",
-      "L",
-      "line",
-      "https://line.me/R/msg/text/?" +
-        encodeURIComponent(shareTitle + "\n" + shareUrl)
-    );
-
-    var copyButton = document.createElement("button");
-
-    copyButton.type = "button";
-    copyButton.className = "article-social-button copy";
-
-    addText(copyButton, "span", "article-social-icon", "â");
-    addText(copyButton, "span", "article-social-name", "URLãã³ãã¼");
-
-    copyButton.addEventListener("click", function () {
-      var name = copyButton.querySelector(".article-social-name");
-
-      function copied() {
-        if (name) name.textContent = "ã³ãã¼ãã¾ãã";
-
-        window.setTimeout(function () {
-          if (name) name.textContent = "URLãã³ãã¼";
-        }, 1800);
-      }
-
-      function fallback() {
-        window.prompt("ãã®URLãã³ãã¼ãã¦ãã ãã", shareUrl);
-      }
-
-      if (
-        navigator.clipboard &&
-        typeof navigator.clipboard.writeText === "function"
-      ) {
-        navigator.clipboard.writeText(shareUrl).then(copied).catch(fallback);
-      } else {
-        fallback();
-      }
-    });
-
-    grid.appendChild(copyButton);
-    box.appendChild(grid);
-    parent.appendChild(box);
+  .content-title {
+    font-size: 28px;
   }
 
-  function renderHero() {
-    var person = D.politician || {};
-
-    var root = el("section", "hero");
-    var inner = el("div", "hero-inner");
-    var copy = el("div", "hero-copy");
-    var visual = el("div", "hero-visual");
-    var collage = el("div", "hero-collage");
-
-    var list = [
-      photos[5],
-      photos[0],
-      photos[3],
-      photos[4]
-    ].filter(Boolean);
-
-    if (!list.length) {
-      list = photos.slice(0, 4);
-    }
-
-    addText(
-      copy,
-      "p",
-      "hero-kicker",
-      person.role || "å°åã®å£°ãçæ¿ã¸"
-    );
-
-    addText(
-      copy,
-      "h2",
-      "hero-name",
-      person.name || "é´æ¨æ­£äºº"
-    );
-
-    addText(
-      copy,
-      "p",
-      "hero-role",
-      [person.area, "æ´»åå ±å"].filter(Boolean).join("ï½")
-    );
-
-    addText(
-      copy,
-      "p",
-      "hero-lead",
-      D.appeal || D.description
-    );
-
-    var actions = el("div", "hero-actions");
-
-    addLink(
-      actions,
-      "æ´»åå ±åãè¦ã",
-      "#activity",
-      "button gold"
-    );
-
-    addLink(
-      actions,
-      "ãã­ãã£ã¼ã«",
-      "#profile",
-      "button secondary"
-    );
-
-    addLink(
-      actions,
-      "å¬å¼ãµã¤ã",
-      D.officialSite,
-      "button"
-    );
-
-    var shareButton = el("button", "share-button");
-
-    shareButton.type = "button";
-    shareButton.textContent = "ãã®ãã¼ã¸ãã·ã§ã¢";
-
-    share(shareButton);
-
-    actions.appendChild(shareButton);
-    copy.appendChild(actions);
-
-    var main = el("figure", "collage-main");
-
-    addImage(
-      main,
-      list[0] || photos[0],
-      "é´æ¨æ­£äººã®æ´»ååç"
-    );
-
-    collage.appendChild(main);
-
-    if (list[1]) {
-      var small = el("figure", "collage-small");
-
-      addImage(
-        small,
-        list[1],
-        "é´æ¨æ­£äººã®æ´»ååç"
-      );
-
-      collage.appendChild(small);
-    }
-
-    if (list.length > 2) {
-      var mini = el("div", "collage-mini");
-
-      list.slice(2, 4).forEach(function (src, index) {
-        var figure = el("figure");
-
-        addImage(
-          figure,
-          src,
-          "é´æ¨æ­£äººã®æ´»ååç" + (index + 3)
-        );
-
-        mini.appendChild(figure);
-      });
-
-      collage.appendChild(mini);
-    }
-
-    addText(
-      collage,
-      "p",
-      "collage-note",
-      "å¿æ¨å¸ããçæ¿ã¸"
-    );
-
-    visual.appendChild(collage);
-
-    var portrait = el("figure", "hero-portrait");
-
-    addImage(
-      portrait,
-      person.image || photos[0],
-      "é´æ¨æ­£äºº"
-    );
-
-    addText(
-      portrait,
-      "span",
-      "portrait-label",
-      "é´æ¨æ­£äºº"
-    );
-
-    visual.appendChild(portrait);
-
-    inner.appendChild(copy);
-    inner.appendChild(visual);
-    root.appendChild(inner);
-    app.appendChild(root);
+  .body-text,
+  .social-lead {
+    font-size: 19px;
+    line-height: 1.95;
   }
 
-  function renderActivity() {
-    var article = D.article;
-
-    var root = section(
-      "activity",
-      "ACTIVITY REPORT",
-      "æ´»åå ±å",
-      "ææ°ã®æ´»å"
-    );
-
-    if (!article) {
-      addText(
-        root,
-        "p",
-        "activity-empty",
-        "ç¾å¨ãå¬éä¸­ã®æ´»åå ±åã¯ããã¾ããã"
-      );
-
-      return;
-    }
-
-    var images = normalizeImages(article);
-
-    if (images.length) {
-      rail(root, images, "æ´»ååç", "activity-photo-rail");
-    }
-
-    var content = el("div", "activity-content activity-content-full");
-
-    addText(
-      content,
-      "div",
-      "date-badge",
-      article.date
-    );
-
-    addText(
-      content,
-      "h3",
-      "content-title",
-      article.title
-    );
-
-    addBody(content, article.body);
-
-    var activityYoutube =
-      article.youtube ||
-      D.youtube ||
-      D.youtubeUrl ||
-      "";
-
-    if (
-      validUrl(article.externalUrl) &&
-      !(isYoutubeUrl(article.externalUrl) && youtubeId(article.externalUrl))
-    ) {
-      var actions = el("div", "button-row article-actions");
-
-      addArticleLink(
-        actions,
-        "é¢é£ãªã³ã¯ãéã",
-        article.externalUrl,
-        "button"
-      );
-
-      if (actions.children.length) {
-        content.appendChild(actions);
-      }
-    }
-
-    addYoutube(content, activityYoutube);
-    articleSocialLinks(content);
-
-    root.appendChild(content);
+  .photo-rail {
+    margin-right: -15px;
+    margin-left: -15px;
+    padding-right: 15px;
+    padding-left: 15px;
   }
 
-  function archiveDateParts(value) {
-    var raw = text(value).trim();
-
-    var match = raw.match(
-      /(\d{4})[\/\-.å¹´](\d{1,2})(?:[\/\-.æ](\d{1,2})æ¥?)?/
-    );
-
-    if (match) {
-      return {
-        year: Number(match[1]),
-        month: Number(match[2]),
-        day: Number(match[3] || 1)
-      };
-    }
-
-    var date = new Date(raw);
-
-    if (!isNaN(date.getTime())) {
-      return {
-        year: date.getFullYear(),
-        month: date.getMonth() + 1,
-        day: date.getDate()
-      };
-    }
-
-    return {
-      year: 0,
-      month: 0,
-      day: 0
-    };
+  .photo-card {
+    flex-basis: 79vw;
   }
 
-  function archiveMonthKey(value) {
-    var parts = archiveDateParts(value);
-
-    if (!parts.year || !parts.month) {
-      return "unknown";
-    }
-
-    return (
-      parts.year +
-      "-" +
-      String(parts.month).padStart(2, "0")
-    );
+  .policy-grid,
+  .social-grid {
+    grid-template-columns: 1fr;
   }
 
-  function archiveMonthLabel(key) {
-    if (key === "unknown") {
-      return "æ¥ä»æªè¨­å®";
-    }
+  .policy-item {
+    font-size: 18px;
+  }
+}
 
-    var values = key.split("-");
-
-    return (
-      values[0] +
-      "å¹´" +
-      Number(values[1]) +
-      "æ"
-    );
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 
-  function archiveDateLabel(value) {
-    var parts = archiveDateParts(value);
+  *,
+  *::before {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+}
 
-    if (!parts.year || !parts.month) {
-      return text(value) || "æ¥ä»æªè¨­å®";
-    }
+/* æå¥ã¢ã¼ã«ã¤ã */
 
-    return (
-      parts.year +
-      "å¹´" +
-      parts.month +
-      "æ" +
-      parts.day +
-      "æ¥"
-    );
+.archive-note {
+  margin-bottom: 15px;
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.archive-months {
+  display: flex;
+  gap: 9px;
+  overflow-x: auto;
+  margin: 0 -4px 20px;
+  padding: 4px;
+  scrollbar-color: var(--green-500) var(--mint);
+  -webkit-overflow-scrolling: touch;
+}
+
+.archive-month-button {
+  flex: 0 0 auto;
+  min-height: 48px;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--green-900);
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.archive-month-button.active {
+  border-color: var(--green-900);
+  background: var(--green-900);
+  color: var(--white);
+}
+
+.archive-group[hidden] {
+  display: none;
+}
+
+.archive-group-title {
+  margin: 4px 0 11px;
+  padding-left: 13px;
+  border-left: 6px solid var(--gold);
+  color: var(--green-950);
+  font-size: 26px;
+  font-weight: 950;
+  line-height: 1.35;
+}
+
+.archive-list {
+  display: grid;
+  gap: 11px;
+}
+
+.archive-card {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: #fbfefb;
+}
+
+.archive-card summary {
+  position: relative;
+  display: block;
+  padding: 15px 48px 15px 17px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.archive-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.archive-card summary::after {
+  position: absolute;
+  top: 50%;
+  right: 17px;
+  color: var(--green-900);
+  content: "+";
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+.archive-card[open] summary::after {
+  content: "â";
+}
+
+.archive-card-date {
+  display: block;
+  color: var(--green-700);
+  font-size: 15px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.archive-card-title {
+  display: block;
+  margin-top: 4px;
+  color: var(--green-950);
+  font-size: 19px;
+  font-weight: 950;
+  line-height: 1.5;
+}
+
+.archive-card-content {
+  padding: 0 17px 18px;
+  border-top: 1px solid var(--line);
+}
+
+.archive-card-content .body-text {
+  padding-top: 15px;
+}
+
+.archive-card-content .button {
+  margin-top: 17px;
+}
+
+.archive-card-content .photo-rail {
+  margin-top: 18px;
+}
+
+.archive-card-content .photo-card {
+  flex-basis: min(270px, 72vw);
+}
+
+.archive-empty {
+  color: var(--muted);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .archive-months {
+    margin-right: -15px;
+    margin-left: -15px;
+    padding-right: 15px;
+    padding-left: 15px;
   }
 
-  function archiveDateNumber(value) {
-    var parts = archiveDateParts(value);
-
-    if (!parts.year || !parts.month) {
-      return 0;
-    }
-
-    return new Date(
-      parts.year,
-      parts.month - 1,
-      parts.day
-    ).getTime();
+  .archive-month-button {
+    min-height: 52px;
+    padding-right: 17px;
+    padding-left: 17px;
+    font-size: 17px;
   }
 
-  function renderArchive() {
-    var articles = (D.articles || []).filter(Boolean);
-
-    var root = section(
-      "archive",
-      "ARCHIVE",
-      "æå¥ã¢ã¼ã«ã¤ã",
-      "éå»ã®æ´»åå ±å"
-    );
-
-    if (!articles.length) {
-      addText(
-        root,
-        "p",
-        "archive-empty",
-        "å¬éä¸­ã®è¨äºã¯ã¾ã ããã¾ããã"
-      );
-
-      return;
-    }
-
-    var groups = {};
-    var keys = [];
-
-    articles.forEach(function (article) {
-      var key = archiveMonthKey(article.date);
-
-      if (!groups[key]) {
-        groups[key] = [];
-        keys.push(key);
-      }
-
-      groups[key].push(article);
-    });
-
-    keys.sort(function (a, b) {
-      if (a === "unknown") return 1;
-      if (b === "unknown") return -1;
-
-      return b.localeCompare(a);
-    });
-
-    keys.forEach(function (key) {
-      groups[key].sort(function (a, b) {
-        return (
-          archiveDateNumber(b.date) -
-          archiveDateNumber(a.date)
-        );
-      });
-    });
-
-    addText(
-      root,
-      "p",
-      "archive-note",
-      "æãé¸ã¶ã¨ããã®æã®æ´»åå ±åãã¾ã¨ãã¦ãè¦§ããã ãã¾ãã"
-    );
-
-    var tabs = el("div", "archive-months");
-    var groupsRoot = el("div", "archive-groups");
-
-    function activate(key) {
-      Array.from(
-        tabs.querySelectorAll("button")
-      ).forEach(function (button) {
-        button.classList.toggle(
-          "active",
-          button.getAttribute("data-month") === key
-        );
-      });
-
-      Array.from(
-        groupsRoot.querySelectorAll(".archive-group")
-      ).forEach(function (group) {
-        group.hidden =
-          key !== "all" &&
-          group.dataset.month !== key;
-      });
-    }
-
-    function addTab(key, label) {
-      var button = document.createElement("button");
-
-      button.type = "button";
-      button.className = "archive-month-button";
-      button.setAttribute("data-month", key);
-      button.textContent = label;
-
-      button.onclick = function () {
-        activate(key);
-      };
-
-      tabs.appendChild(button);
-    }
-
-    addTab("all", "ãã¹ã¦");
-
-    keys.forEach(function (key) {
-      addTab(key, archiveMonthLabel(key));
-    });
-
-    keys.forEach(function (key, groupIndex) {
-      var group = el("section", "archive-group");
-
-      group.dataset.month = key;
-
-      addText(
-        group,
-        "h3",
-        "archive-group-title",
-        archiveMonthLabel(key)
-      );
-
-      var list = el("div", "archive-list");
-
-      groups[key].forEach(function (article, articleIndex) {
-        var card = document.createElement("details");
-        var summary = document.createElement("summary");
-        var content = el("div", "archive-card-content");
-
-        card.className = "archive-card";
-        card.open =
-          groupIndex === 0 &&
-          articleIndex === 0;
-
-        addText(
-          summary,
-          "span",
-          "archive-card-date",
-          archiveDateLabel(article.date)
-        );
-
-        addText(
-          summary,
-          "strong",
-          "archive-card-title",
-          article.title || "ç¡é¡ã®æ´»åå ±å"
-        );
-
-        var articleImages = normalizeImages(article);
-
-        if (articleImages.length) {
-          rail(
-            content,
-            articleImages,
-            "æ´»ååç",
-            "archive-photo-rail"
-          );
-        }
-
-        addBody(content, article.body);
-
-        var archiveYoutube = article.youtube || "";
-
-        if (
-          validUrl(article.externalUrl) &&
-          !(isYoutubeUrl(article.externalUrl) && youtubeId(article.externalUrl))
-        ) {
-          var archiveActions = el("div", "button-row article-actions");
-
-          addArticleLink(
-            archiveActions,
-            "é¢é£ãªã³ã¯ãéã",
-            article.externalUrl,
-            "button"
-          );
-
-          if (archiveActions.children.length) {
-            content.appendChild(archiveActions);
-          }
-        }
-
-        addYoutube(content, archiveYoutube);
-        articleSocialLinks(content);
-
-        card.appendChild(summary);
-        card.appendChild(content);
-        list.appendChild(card);
-      });
-
-      group.appendChild(list);
-      groupsRoot.appendChild(group);
-    });
-
-    root.appendChild(tabs);
-    root.appendChild(groupsRoot);
-
-    activate(keys[0]);
+  .archive-group-title {
+    font-size: 25px;
   }
 
-  function renderProfile() {
-    var person = D.politician;
-
-    if (!person) return;
-
-    var root = section(
-      "profile",
-      "PROFILE",
-      "ãã­ãã£ã¼ã«",
-      "é´æ¨æ­£äººã«ã¤ãã¦"
-    );
-
-    var layout = el("div", "profile-layout reverse");
-    var media = el("div");
-    var content = el("div", "profile-content");
-
-    addImage(
-      media,
-      person.image || photos[0],
-      "é´æ¨æ­£äººã®ãã­ãã£ã¼ã«åç",
-      "profile-image"
-    );
-
-    addText(
-      content,
-      "h3",
-      "profile-name",
-      person.name
-    );
-
-    addText(
-      content,
-      "p",
-      "role-line",
-      [person.role, person.area].filter(Boolean).join("ï½")
-    );
-
-    addBody(content, person.profile);
-
-    layout.appendChild(media);
-    layout.appendChild(content);
-    root.appendChild(layout);
+  .archive-card-title {
+    font-size: 19px;
   }
-
-  function renderPolicy() {
-    var person = D.politician;
-
-    if (!person) return;
-
-    var root = section(
-      "policy",
-      "POLICY",
-      "æ¿ç­ã»æ´»åã®æ±",
-      "å¤§åã«ãã¦ãããã¨"
-    );
-
-    var grid = el("div", "policy-grid");
-
-    text(person.policy)
-      .split(/\n/)
-      .map(function (line) {
-        return line.replace(/^ã»/, "").trim();
-      })
-      .filter(Boolean)
-      .forEach(function (line) {
-        addText(
-          grid,
-          "div",
-          "policy-item",
-          line
-        );
-      });
-
-    root.appendChild(grid);
-  }
-
-  function renderConsultation() {
-    var person = D.politician || {};
-
-    var root = section(
-      "consultation",
-      "CONSULTATION",
-      "å¸æ°ç¸è«",
-      "å°åã®å£°ããèãããã ãã"
-    );
-
-    var layout = el("div", "consultation-layout reverse");
-    var media = el("div");
-    var content = el("div", "consultation-content");
-
-    addImage(
-      media,
-      photos[4] || photos[0],
-      "å°åã®æ´»ååç",
-      "consultation-image"
-    );
-
-    var box = el("div", "consultation-box");
-
-    addBody(
-      box,
-      person.consultation || D.contact
-    );
-
-    addLink(
-      box,
-      "ãåãåãããã¼ã¸ãéã",
-      D.contactUrl,
-      "button"
-    );
-
-    content.appendChild(box);
-    layout.appendChild(media);
-    layout.appendChild(content);
-    root.appendChild(layout);
-  }
-
-  function renderSocial() {
-    var root = section(
-      "social",
-      "OFFICIAL / SNS",
-      "å¬å¼ãµã¤ãã»SNS",
-      "ææ°æå ±ã¯ãã¡ã"
-    );
-
-    var layout = el("div", "social-layout");
-    var image = el("div");
-    var content = el("div");
-
-    addImage(
-      image,
-      photos[5] || photos[0],
-      "é´æ¨æ­£äººã®æ´»ååç",
-      "social-image"
-    );
-
-    addText(
-      content,
-      "p",
-      "social-lead",
-      "å¬å¼ãã¼ã ãã¼ã¸ãSNSãããææ°ã®æ´»åããè¦§ããã ãã¾ãã"
-    );
-
-    var grid = el("div", "social-grid");
-
-    socialCard(
-      grid,
-      "å¬å¼ãã¼ã ãã¼ã¸",
-      D.officialSite,
-      "Web",
-      "other"
-    );
-
-    socialUrls().forEach(function (url) {
-        var info = socialInfo(url);
-
-        if (!info) return;
-
-        addSocialDestination(
-          grid,
-          info.name,
-          url,
-          info.icon,
-          info.css
-        );
-      });
-
-    socialCard(
-      grid,
-      "ãåãåãããã¼ã¸",
-      D.contactUrl,
-      "â",
-      "other"
-    );
-
-    content.appendChild(grid);
-    layout.appendChild(image);
-    layout.appendChild(content);
-    root.appendChild(layout);
-  }
-
-  function normalizeNews(item) {
-    if (
-      !item ||
-      (item.siteKey && item.siteKey !== SITE_KEY)
-    ) {
-      return null;
-    }
-
-    var videoUrl = articleVideo(item);
-    var externalUrl = item.externalUrl || "";
-
-    if (!videoUrl && isYoutubeUrl(externalUrl) && youtubeId(externalUrl)) {
-      videoUrl = externalUrl;
-      externalUrl = "";
-    }
-
-    if (isYoutubeUrl(externalUrl) && youtubeId(externalUrl)) {
-      externalUrl = "";
-    }
-
-    return {
-      id: item.id || item.newsId || "",
-      date: item.date,
-      title: item.title,
-      body: item.body,
-      images: normalizeImages(item),
-      youtube: videoUrl,
-      externalUrl: externalUrl,
-      status: item.status || ""
-    };
-  }
-
-  function loadRemoteArticles() {
-    if (!GAS_URL) {
-      return Promise.resolve({
-        ok: false,
-        articles: []
-      });
-    }
-
-    var url =
-      GAS_URL +
-      "?mode=publicNews" +
-      "&siteKey=" +
-      encodeURIComponent(SITE_KEY) +
-      "&limit=100" +
-      "&_=" +
-      Date.now();
-
-    return fetch(url, {
-      cache: "no-store"
-    })
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (data) {
-        var list =
-          data && Array.isArray(data.news)
-            ? data.news
-            : data && Array.isArray(data.articles)
-              ? data.articles
-              : data && Array.isArray(data.items)
-                ? data.items
-                : [];
-
-        var articles = list
-          .map(normalizeNews)
-          .filter(Boolean)
-          .sort(function (a, b) {
-            return (
-              archiveDateNumber(b.date) -
-              archiveDateNumber(a.date)
-            );
-          });
-
-        return {
-          ok: true,
-          articles: articles
-        };
-      })
-      .catch(function () {
-        return {
-          ok: false,
-          articles: []
-        };
-      });
-  }
-
-  function render() {
-    if (!app) return;
-
-    app.innerHTML = "";
-
-    var title = document.getElementById("siteTitle");
-
-    if (title) {
-      title.textContent =
-        (D.politician && D.politician.name) ||
-        "é´æ¨æ­£äºº";
-    }
-
-    renderHero();
-    renderActivity();
-    renderArchive();
-    renderProfile();
-    renderPolicy();
-    renderConsultation();
-    renderSocial();
-  }
-
-  var headerShare = document.getElementById("headerShare");
-
-  if (headerShare) {
-    headerShare.textContent = "ãã®ãã¼ã¸ãã·ã§ã¢";
-    share(headerShare);
-  }
-
-  render();
-
-  loadRemoteArticles().then(function (result) {
-    if (!result || !result.ok) return;
-
-    D.articles = result.articles || [];
-    D.article = D.articles[0] || null;
-
-    if (
-      D.article &&
-      D.article.images.length
-    ) {
-      D.articleImages = D.article.images;
-    }
-
-    render();
-  });
-})();
+}
