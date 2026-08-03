@@ -44,6 +44,7 @@
 
     image.onerror = function () {
       var figure = image.closest("figure");
+
       if (figure) {
         figure.remove();
       } else {
@@ -61,6 +62,7 @@
     }
 
     var link = el("a", className || "button");
+
     link.href = url;
     link.textContent = label;
 
@@ -91,10 +93,12 @@
         addYoutube(node, match[0]);
       } else {
         var link = document.createElement("a");
+
         link.href = match[0];
         link.target = "_blank";
         link.rel = "noopener noreferrer";
         link.textContent = match[0];
+
         node.appendChild(link);
       }
 
@@ -190,6 +194,7 @@
 
   function section(id, kicker, title, note) {
     var root = el("section", "section");
+
     root.id = id || "";
 
     var heading = el("div", "section-heading");
@@ -324,6 +329,75 @@
     socialCard(parent, name, url, icon, css);
   }
 
+  function articleSocialLinks(parent) {
+    var urls = (D.sns || []).filter(Boolean);
+
+    if (
+      D.youtube &&
+      urls.indexOf(D.youtube) < 0 &&
+      !(isYoutubeUrl(D.youtube) && youtubeId(D.youtube))
+    ) {
+      urls.push(D.youtube);
+    }
+
+    if (!urls.length) return;
+
+    var box = el("div", "article-social-links");
+    var grid = el("div", "article-social-grid");
+    var count = 0;
+
+    addText(
+      box,
+      "h4",
+      "article-social-title",
+      "SNSリンク"
+    );
+
+    urls.forEach(function (url) {
+      var info = socialInfo(url);
+
+      if (isYoutubeUrl(url) && youtubeId(url)) {
+        return;
+      }
+
+      if (!validUrl(url)) return;
+
+      var link = el(
+        "a",
+        "article-social-button " + (info.css || "other")
+      );
+
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+
+      addText(
+        link,
+        "span",
+        "article-social-icon",
+        info.icon
+      );
+
+      addText(
+        link,
+        "span",
+        "article-social-name",
+        info.name
+      );
+
+      grid.appendChild(link);
+      count += 1;
+    });
+
+    if (count) {
+      box.appendChild(grid);
+    }
+
+    if (box.children.length > 1) {
+      parent.appendChild(box);
+    }
+  }
+
   function renderHero() {
     var person = D.politician || {};
 
@@ -401,6 +475,7 @@
     shareButton.textContent = "このページをシェア";
 
     share(shareButton);
+
     actions.appendChild(shareButton);
     copy.appendChild(actions);
 
@@ -524,6 +599,7 @@
 
     addBody(content, article.body);
     addYoutube(content, article.youtube || D.youtube);
+    articleSocialLinks(content);
 
     addArticleLink(
       content,
@@ -776,6 +852,7 @@
 
         addBody(content, article.body);
         addYoutube(content, article.youtube || "");
+        articleSocialLinks(content);
 
         if ((article.images || []).filter(Boolean).length) {
           rail(
