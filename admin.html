@@ -225,7 +225,7 @@
       $("date").value=toDate(item.date);
       $("title").value=item.title||"";
       $("body").value=item.body||"";
-      $("video").value=normalizeYoutubeUrl(item.videoUrl||item.youtubeUrl||item.youtube||"");
+      $("video").value=normalizeYoutubeUrl(item.videoUrl||item.youtubeUrl||item.youtube_url||item.youtubeURL||item.youtube||item.video||"");
       $("external").value=item.externalUrl||"";
       $("state").value=item.status||"公開";
       currentImages=(item.images||[]).filter(Boolean).slice(0,MAX_IMAGES);
@@ -390,11 +390,14 @@
 
       Promise.all(
         files.map(function(file){
-          return readImage(file).then(function(data){
-            newImages.push({data:data})
-          })
+          return readImage(file)
         })
-      ).then(showPreview)
+      ).then(function(dataList){
+        newImages=dataList.map(function(data){
+          return{data:data}
+        });
+        showPreview()
+      })
     };
 
     $("video").oninput=showVideoPreview;
