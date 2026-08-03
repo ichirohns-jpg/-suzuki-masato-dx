@@ -7,7 +7,9 @@
   var app = document.getElementById("app");
   var photos = (D.commonImages || []).filter(Boolean);
 
-  function text(value) { return value == null ? "" : String(value); }
+  function text(value) {
+    return value == null ? "" : String(value);
+  }
 
   function el(tag, className) {
     var node = document.createElement(tag);
@@ -84,12 +86,16 @@
         document.createTextNode(source.slice(last, match.index))
       );
 
-      var link = document.createElement("a");
-      link.href = match[0];
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      link.textContent = match[0];
-      node.appendChild(link);
+      if (isYoutubeUrl(match[0])) {
+        addYoutube(node, match[0]);
+      } else {
+        var link = document.createElement("a");
+        link.href = match[0];
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = match[0];
+        node.appendChild(link);
+      }
 
       last = match.index + match[0].length;
     }
@@ -98,12 +104,18 @@
     parent.appendChild(node);
   }
 
+  function isYoutubeUrl(url) {
+    return /(?:youtube\.com|youtube-nocookie\.com|youtu\.be)/i.test(
+      text(url)
+    );
+  }
+
   function youtubeId(url) {
     var match = text(url).match(
-      /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/i
+      /(?:[?&]v=|youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|shorts\/|live\/|embed\/|v\/))([A-Za-z0-9_-]{6,})/i
     );
 
-    return match ? match[1] : "";
+    return match ? match[1].split(/[?&#/]/)[0] : "";
   }
 
   function addYoutube(parent, url) {
@@ -113,9 +125,14 @@
     var box = el("div", "video");
     var frame = document.createElement("iframe");
 
-    frame.src = "https://www.youtube.com/embed/" + id;
+    frame.src =
+      "https://www.youtube-nocookie.com/embed/" +
+      id +
+      "?playsinline=1&rel=0&modestbranding=1";
+
     frame.title = "活動報告動画";
     frame.loading = "lazy";
+    frame.referrerPolicy = "strict-origin-when-cross-origin";
     frame.allow =
       "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
     frame.allowFullscreen = true;
@@ -542,6 +559,7 @@
       button.className = "archive-month-button";
       button.setAttribute("data-month", key);
       button.textContent = label;
+
       button.onclick = function () {
         activate(key);
       };
@@ -829,4 +847,71 @@
         return response.json();
       })
       .then(function (data) {
-        var
+        var list =
+          data && Array.isArray(data.news)
+            ? data.news
+            : [];
+
+        var articles = list
+          .map(normalizeNews)
+          .filter(Boolean)
+          .sort(function (a, b) {
+            return archiveDateNumber(b.date) - archiveDateNumber(a.date);
+          });
+
+        return {
+          ok: true,
+          articles: articles
+        };
+      })
+      .catch(function () {
+        return {
+          ok: false,
+          articles: []
+        };
+      });
+  }
+
+  function render() {
+    if (!app) return;
+
+    app.innerHTML = "";
+
+    var title = document.getElementById("siteTitle");
+
+    if (title) {
+      title.textContent =
+        (D.politician && D.politician.name) || "鈴木正人";
+    }
+
+    renderHero();
+    renderActivity();
+    renderArchive();
+    renderProfile();
+    renderPolicy();
+    renderConsultation();
+    renderSocial();
+  }
+
+  var headerShare = document.getElementById("headerShare");
+
+  if (headerShare) {
+    headerShare.textContent = "このページをシェア";
+    share(headerShare);
+  }
+
+  render();
+
+  loadRemoteArticles().then(function (result) {
+    if (!result || !result.ok) return;
+
+    D.articles = result.articles || [];
+    D.article = D.articles[0] || null;
+
+    if (D.article && D.article.images.length) {
+      D.articleImages = D.article.images;
+    }
+
+    render();
+  });
+})();
