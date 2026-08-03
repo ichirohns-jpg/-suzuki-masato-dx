@@ -154,7 +154,7 @@
         /(?:[?&]v=|youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|shorts\/|live\/|embed\/|v\/))([A-Za-z0-9_-]{6,})/i
       );
 
-      return match?match[1].split(/[?&#/][^]*/)[0]:""
+      return match?match[1].split(/[?&#/])[0]:""
     }
 
     function showVideoPreview(){
@@ -169,8 +169,7 @@
       }
 
       var frame=document.createElement("iframe");
-
-      frame.src="https://www.youtube-nocookie.com/embed/"+id+"?playsinline=1&rel=0&modestbranding=1";
+      frame.src="https://www.youtube-nocookie.com/embed/"+id+"?playsinline=1&rel=0";
       frame.title="YouTube動画プレビュー";
       frame.loading="lazy";
       frame.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
@@ -463,7 +462,6 @@
         date:$("date").value,
         title:$("title").value.trim(),
         body:$("body").value.trim(),
-
         videoUrl:youtube,
         videoURL:youtube,
         video_url:youtube,
@@ -472,11 +470,9 @@
         youtubeURL:youtube,
         youtube:youtube,
         video:youtube,
-
         externalUrl:$("external").value.trim(),
         status:$("state").value,
         existingImages:currentImages,
-
         newImages:newImages.map(function(x,i){
           return{
             data:x.data,
