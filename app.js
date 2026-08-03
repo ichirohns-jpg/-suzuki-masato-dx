@@ -13,10 +13,12 @@
     if (Array.isArray(value)) return value;
 
     var raw = text(value).trim();
+
     if (!raw) return [];
 
     try {
       var parsed = JSON.parse(raw);
+
       if (Array.isArray(parsed)) return parsed;
     } catch (error) {}
 
@@ -66,7 +68,7 @@
       item.youtubeURL ||
       item.youtube ||
       item.video ||
-      item["動画URL"] ||
+      item["åç»URL"] ||
       item["YouTube URL"] ||
       item["YouTube"] ||
       "";
@@ -146,7 +148,7 @@
     try {
       return new URL(url).hostname.replace(/^www\./i, "");
     } catch (error) {
-      return "公式リンク";
+      return "å¬å¼ãªã³ã¯";
     }
   }
 
@@ -155,7 +157,7 @@
 
     var image = el("img", className || "");
     image.src = src;
-    image.alt = alt || "鈴木正人の活動写真";
+    image.alt = alt || "é´æ¨æ­£äººã®æ´»ååç";
     image.loading = "lazy";
     image.decoding = "async";
 
@@ -253,7 +255,7 @@
       id +
       "?playsinline=1&rel=0&modestbranding=1";
 
-    frame.title = "活動報告動画";
+    frame.title = "æ´»åå ±ååç»";
     frame.loading = "lazy";
     frame.referrerPolicy = "strict-origin-when-cross-origin";
 
@@ -270,7 +272,6 @@
     if (!url) return null;
 
     if (isYoutubeUrl(url) && youtubeId(url)) {
-      addYoutube(parent, url);
       return null;
     }
 
@@ -295,17 +296,17 @@
 
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(url).then(function () {
-          button.textContent = "リンクをコピーしました";
+          button.textContent = "ãªã³ã¯ãã³ãã¼ãã¾ãã";
 
           window.setTimeout(function () {
-            button.textContent = "このページをシェア";
+            button.textContent = "ãã®ãã¼ã¸ãã·ã§ã¢";
           }, 2200);
         });
 
         return;
       }
 
-      window.prompt("URLをコピーしてください", url);
+      window.prompt("URLãã³ãã¼ãã¦ãã ãã", url);
     };
   }
 
@@ -348,7 +349,7 @@
       addImage(
         figure,
         src,
-        label + "写真" + (index + 1)
+        label + "åç" + (index + 1)
       );
 
       addText(
@@ -373,7 +374,7 @@
 
     if (value.indexOf("facebook.com") >= 0) {
       return {
-        name: "Facebook（フェイスブック）",
+        name: "Facebookï¼ãã§ã¤ã¹ããã¯ï¼",
         icon: "f",
         css: "facebook"
       };
@@ -381,8 +382,8 @@
 
     if (value.indexOf("instagram.com") >= 0) {
       return {
-        name: "Instagram（インスタグラム）",
-        icon: "◎",
+        name: "Instagramï¼ã¤ã³ã¹ã¿ã°ã©ã ï¼",
+        icon: "â",
         css: "instagram"
       };
     }
@@ -392,7 +393,7 @@
       value.indexOf("x.com") >= 0
     ) {
       return {
-        name: "X（旧Twitter）",
+        name: "Xï¼æ§Twitterï¼",
         icon: "X",
         css: "x"
       };
@@ -404,14 +405,14 @@
     ) {
       return {
         name: "YouTube",
-        icon: "▶",
+        icon: "â¶",
         css: "youtube"
       };
     }
 
     return {
-      name: "公式リンク",
-      icon: "↗",
+      name: "å¬å¼ãªã³ã¯",
+      icon: "â",
       css: "other"
     };
   }
@@ -450,64 +451,94 @@
   }
 
   function articleSocialLinks(parent) {
-    var urls = socialUrls();
-
     var box = el("div", "article-social-links");
     var grid = el("div", "article-social-grid");
-    var count = 0;
 
     addText(
       box,
       "h4",
       "article-social-title",
-      "SNSリンク"
+      "ãã®è¨äºãã·ã§ã¢"
     );
 
-    urls.forEach(function (url) {
-      var info = socialInfo(url);
+    var shareUrl = D.publicUrl || window.location.href;
+    var shareTitle = D.title || "é´æ¨æ­£äººã®æ´»åå ±å";
 
-      if (!info) return;
-
-      if (isYoutubeUrl(url) && youtubeId(url)) {
-        return;
-      }
-
-      if (!validUrl(url)) return;
-
-      var link = el(
-        "a",
-        "article-social-button " + (info.css || "other")
-      );
+    function addShareLink(label, icon, css, url) {
+      var link = el("a", "article-social-button " + css);
 
       link.href = url;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
 
-      addText(
-        link,
-        "span",
-        "article-social-icon",
-        info.icon
-      );
-
-      addText(
-        link,
-        "span",
-        "article-social-name",
-        info.name
-      );
+      addText(link, "span", "article-social-icon", icon);
+      addText(link, "span", "article-social-name", label);
 
       grid.appendChild(link);
-      count += 1;
+    }
+
+    addShareLink(
+      "Facebookã§ã·ã§ã¢",
+      "f",
+      "facebook",
+      "https://www.facebook.com/sharer/sharer.php?u=" +
+        encodeURIComponent(shareUrl)
+    );
+
+    addShareLink(
+      "Xã§ã·ã§ã¢",
+      "X",
+      "x",
+      "https://twitter.com/intent/tweet?text=" +
+        encodeURIComponent(shareTitle) +
+        "&url=" +
+        encodeURIComponent(shareUrl)
+    );
+
+    addShareLink(
+      "LINEã§éã",
+      "L",
+      "line",
+      "https://line.me/R/msg/text/?" +
+        encodeURIComponent(shareTitle + "\n" + shareUrl)
+    );
+
+    var copyButton = document.createElement("button");
+
+    copyButton.type = "button";
+    copyButton.className = "article-social-button copy";
+
+    addText(copyButton, "span", "article-social-icon", "â");
+    addText(copyButton, "span", "article-social-name", "URLãã³ãã¼");
+
+    copyButton.addEventListener("click", function () {
+      var name = copyButton.querySelector(".article-social-name");
+
+      function copied() {
+        if (name) name.textContent = "ã³ãã¼ãã¾ãã";
+
+        window.setTimeout(function () {
+          if (name) name.textContent = "URLãã³ãã¼";
+        }, 1800);
+      }
+
+      function fallback() {
+        window.prompt("ãã®URLãã³ãã¼ãã¦ãã ãã", shareUrl);
+      }
+
+      if (
+        navigator.clipboard &&
+        typeof navigator.clipboard.writeText === "function"
+      ) {
+        navigator.clipboard.writeText(shareUrl).then(copied).catch(fallback);
+      } else {
+        fallback();
+      }
     });
 
-    if (count) {
-      box.appendChild(grid);
-    }
-
-    if (box.children.length > 1) {
-      parent.appendChild(box);
-    }
+    grid.appendChild(copyButton);
+    box.appendChild(grid);
+    parent.appendChild(box);
   }
 
   function renderHero() {
@@ -534,21 +565,21 @@
       copy,
       "p",
       "hero-kicker",
-      person.role || "地域の声を県政へ"
+      person.role || "å°åã®å£°ãçæ¿ã¸"
     );
 
     addText(
       copy,
       "h2",
       "hero-name",
-      person.name || "鈴木正人"
+      person.name || "é´æ¨æ­£äºº"
     );
 
     addText(
       copy,
       "p",
       "hero-role",
-      [person.area, "活動報告"].filter(Boolean).join("｜")
+      [person.area, "æ´»åå ±å"].filter(Boolean).join("ï½")
     );
 
     addText(
@@ -562,21 +593,21 @@
 
     addLink(
       actions,
-      "活動報告を見る",
+      "æ´»åå ±åãè¦ã",
       "#activity",
       "button gold"
     );
 
     addLink(
       actions,
-      "プロフィール",
+      "ãã­ãã£ã¼ã«",
       "#profile",
       "button secondary"
     );
 
     addLink(
       actions,
-      "公式サイト",
+      "å¬å¼ãµã¤ã",
       D.officialSite,
       "button"
     );
@@ -584,7 +615,7 @@
     var shareButton = el("button", "share-button");
 
     shareButton.type = "button";
-    shareButton.textContent = "このページをシェア";
+    shareButton.textContent = "ãã®ãã¼ã¸ãã·ã§ã¢";
 
     share(shareButton);
 
@@ -596,7 +627,7 @@
     addImage(
       main,
       list[0] || photos[0],
-      "鈴木正人の活動写真"
+      "é´æ¨æ­£äººã®æ´»ååç"
     );
 
     collage.appendChild(main);
@@ -607,7 +638,7 @@
       addImage(
         small,
         list[1],
-        "鈴木正人の活動写真"
+        "é´æ¨æ­£äººã®æ´»ååç"
       );
 
       collage.appendChild(small);
@@ -622,7 +653,7 @@
         addImage(
           figure,
           src,
-          "鈴木正人の活動写真" + (index + 3)
+          "é´æ¨æ­£äººã®æ´»ååç" + (index + 3)
         );
 
         mini.appendChild(figure);
@@ -635,7 +666,7 @@
       collage,
       "p",
       "collage-note",
-      "志木市から県政へ"
+      "å¿æ¨å¸ããçæ¿ã¸"
     );
 
     visual.appendChild(collage);
@@ -645,14 +676,14 @@
     addImage(
       portrait,
       person.image || photos[0],
-      "鈴木正人"
+      "é´æ¨æ­£äºº"
     );
 
     addText(
       portrait,
       "span",
       "portrait-label",
-      "鈴木正人"
+      "é´æ¨æ­£äºº"
     );
 
     visual.appendChild(portrait);
@@ -669,8 +700,8 @@
     var root = section(
       "activity",
       "ACTIVITY REPORT",
-      "活動報告",
-      "最新の活動"
+      "æ´»åå ±å",
+      "ææ°ã®æ´»å"
     );
 
     if (!article) {
@@ -678,7 +709,7 @@
         root,
         "p",
         "activity-empty",
-        "現在、公開中の活動報告はありません。"
+        "ç¾å¨ãå¬éä¸­ã®æ´»åå ±åã¯ããã¾ããã"
       );
 
       return;
@@ -686,12 +717,8 @@
 
     var images = normalizeImages(article);
 
-    if (!images.length) {
-      images = (D.articleImages || photos).filter(Boolean);
-    }
-
     if (images.length) {
-      rail(root, images, "活動写真", "activity-photo-rail");
+      rail(root, images, "æ´»ååç", "activity-photo-rail");
     }
 
     var content = el("div", "activity-content activity-content-full");
@@ -716,7 +743,7 @@
       article.youtube ||
       D.youtube ||
       D.youtubeUrl ||
-      (isYoutubeUrl(article.externalUrl) ? article.externalUrl : "");
+      "";
 
     if (
       validUrl(article.externalUrl) &&
@@ -726,7 +753,7 @@
 
       addArticleLink(
         actions,
-        "関連リンクを開く",
+        "é¢é£ãªã³ã¯ãéã",
         article.externalUrl,
         "button"
       );
@@ -746,7 +773,7 @@
     var raw = text(value).trim();
 
     var match = raw.match(
-      /(\d{4})[\/\-.年](\d{1,2})(?:[\/\-.月](\d{1,2})日?)?/
+      /(\d{4})[\/\-.å¹´](\d{1,2})(?:[\/\-.æ](\d{1,2})æ¥?)?/
     );
 
     if (match) {
@@ -790,16 +817,16 @@
 
   function archiveMonthLabel(key) {
     if (key === "unknown") {
-      return "日付未設定";
+      return "æ¥ä»æªè¨­å®";
     }
 
     var values = key.split("-");
 
     return (
       values[0] +
-      "年" +
+      "å¹´" +
       Number(values[1]) +
-      "月"
+      "æ"
     );
   }
 
@@ -807,16 +834,16 @@
     var parts = archiveDateParts(value);
 
     if (!parts.year || !parts.month) {
-      return text(value) || "日付未設定";
+      return text(value) || "æ¥ä»æªè¨­å®";
     }
 
     return (
       parts.year +
-      "年" +
+      "å¹´" +
       parts.month +
-      "月" +
+      "æ" +
       parts.day +
-      "日"
+      "æ¥"
     );
   }
 
@@ -840,8 +867,8 @@
     var root = section(
       "archive",
       "ARCHIVE",
-      "月別アーカイブ",
-      "過去の活動報告"
+      "æå¥ã¢ã¼ã«ã¤ã",
+      "éå»ã®æ´»åå ±å"
     );
 
     if (!articles.length) {
@@ -849,7 +876,7 @@
         root,
         "p",
         "archive-empty",
-        "公開中の記事はまだありません。"
+        "å¬éä¸­ã®è¨äºã¯ã¾ã ããã¾ããã"
       );
 
       return;
@@ -889,7 +916,7 @@
       root,
       "p",
       "archive-note",
-      "月を選ぶと、その月の活動報告をまとめてご覧いただけます。"
+      "æãé¸ã¶ã¨ããã®æã®æ´»åå ±åãã¾ã¨ãã¦ãè¦§ããã ãã¾ãã"
     );
 
     var tabs = el("div", "archive-months");
@@ -929,7 +956,7 @@
       tabs.appendChild(button);
     }
 
-    addTab("all", "すべて");
+    addTab("all", "ãã¹ã¦");
 
     keys.forEach(function (key) {
       addTab(key, archiveMonthLabel(key));
@@ -970,7 +997,7 @@
           summary,
           "strong",
           "archive-card-title",
-          article.title || "無題の活動報告"
+          article.title || "ç¡é¡ã®æ´»åå ±å"
         );
 
         var articleImages = normalizeImages(article);
@@ -979,16 +1006,14 @@
           rail(
             content,
             articleImages,
-            "活動写真",
+            "æ´»ååç",
             "archive-photo-rail"
           );
         }
 
         addBody(content, article.body);
 
-        var archiveYoutube =
-          article.youtube ||
-          (isYoutubeUrl(article.externalUrl) ? article.externalUrl : "");
+        var archiveYoutube = article.youtube || "";
 
         if (
           validUrl(article.externalUrl) &&
@@ -998,7 +1023,7 @@
 
           addArticleLink(
             archiveActions,
-            "関連リンクを開く",
+            "é¢é£ãªã³ã¯ãéã",
             article.externalUrl,
             "button"
           );
@@ -1034,8 +1059,8 @@
     var root = section(
       "profile",
       "PROFILE",
-      "プロフィール",
-      "鈴木正人について"
+      "ãã­ãã£ã¼ã«",
+      "é´æ¨æ­£äººã«ã¤ãã¦"
     );
 
     var layout = el("div", "profile-layout reverse");
@@ -1045,7 +1070,7 @@
     addImage(
       media,
       person.image || photos[0],
-      "鈴木正人のプロフィール写真",
+      "é´æ¨æ­£äººã®ãã­ãã£ã¼ã«åç",
       "profile-image"
     );
 
@@ -1060,7 +1085,7 @@
       content,
       "p",
       "role-line",
-      [person.role, person.area].filter(Boolean).join("｜")
+      [person.role, person.area].filter(Boolean).join("ï½")
     );
 
     addBody(content, person.profile);
@@ -1078,8 +1103,8 @@
     var root = section(
       "policy",
       "POLICY",
-      "政策・活動の柱",
-      "大切にしていること"
+      "æ¿ç­ã»æ´»åã®æ±",
+      "å¤§åã«ãã¦ãããã¨"
     );
 
     var grid = el("div", "policy-grid");
@@ -1087,7 +1112,7 @@
     text(person.policy)
       .split(/\n/)
       .map(function (line) {
-        return line.replace(/^・/, "").trim();
+        return line.replace(/^ã»/, "").trim();
       })
       .filter(Boolean)
       .forEach(function (line) {
@@ -1108,8 +1133,8 @@
     var root = section(
       "consultation",
       "CONSULTATION",
-      "市民相談",
-      "地域の声をお聞かせください"
+      "å¸æ°ç¸è«",
+      "å°åã®å£°ããèãããã ãã"
     );
 
     var layout = el("div", "consultation-layout reverse");
@@ -1119,7 +1144,7 @@
     addImage(
       media,
       photos[4] || photos[0],
-      "地域の活動写真",
+      "å°åã®æ´»ååç",
       "consultation-image"
     );
 
@@ -1132,7 +1157,7 @@
 
     addLink(
       box,
-      "お問い合わせページを開く",
+      "ãåãåãããã¼ã¸ãéã",
       D.contactUrl,
       "button"
     );
@@ -1147,8 +1172,8 @@
     var root = section(
       "social",
       "OFFICIAL / SNS",
-      "公式サイト・SNS",
-      "最新情報はこちら"
+      "å¬å¼ãµã¤ãã»SNS",
+      "ææ°æå ±ã¯ãã¡ã"
     );
 
     var layout = el("div", "social-layout");
@@ -1158,7 +1183,7 @@
     addImage(
       image,
       photos[5] || photos[0],
-      "鈴木正人の活動写真",
+      "é´æ¨æ­£äººã®æ´»ååç",
       "social-image"
     );
 
@@ -1166,38 +1191,38 @@
       content,
       "p",
       "social-lead",
-      "公式ホームページやSNSから、最新の活動をご覧いただけます。"
+      "å¬å¼ãã¼ã ãã¼ã¸ãSNSãããææ°ã®æ´»åããè¦§ããã ãã¾ãã"
     );
 
     var grid = el("div", "social-grid");
 
     socialCard(
       grid,
-      "公式ホームページ",
+      "å¬å¼ãã¼ã ãã¼ã¸",
       D.officialSite,
       "Web",
       "other"
     );
 
     socialUrls().forEach(function (url) {
-      var info = socialInfo(url);
+        var info = socialInfo(url);
 
-      if (!info) return;
+        if (!info) return;
 
-      addSocialDestination(
-        grid,
-        info.name,
-        url,
-        info.icon,
-        info.css
-      );
-    });
+        addSocialDestination(
+          grid,
+          info.name,
+          url,
+          info.icon,
+          info.css
+        );
+      });
 
     socialCard(
       grid,
-      "お問い合わせページ",
+      "ãåãåãããã¼ã¸",
       D.contactUrl,
-      "✉",
+      "â",
       "other"
     );
 
@@ -1215,12 +1240,16 @@
       return null;
     }
 
-    if (
-      !item.siteKey &&
-      item.externalUrl &&
-      item.externalUrl.indexOf(SITE_KEY) < 0
-    ) {
-      return null;
+    var videoUrl = articleVideo(item);
+    var externalUrl = item.externalUrl || "";
+
+    if (!videoUrl && isYoutubeUrl(externalUrl) && youtubeId(externalUrl)) {
+      videoUrl = externalUrl;
+      externalUrl = "";
+    }
+
+    if (isYoutubeUrl(externalUrl) && youtubeId(externalUrl)) {
+      externalUrl = "";
     }
 
     return {
@@ -1229,10 +1258,8 @@
       title: item.title,
       body: item.body,
       images: normalizeImages(item),
-      youtube:
-        articleVideo(item) ||
-        (isYoutubeUrl(item.externalUrl) ? item.externalUrl : ""),
-      externalUrl: item.externalUrl || "",
+      youtube: videoUrl,
+      externalUrl: externalUrl,
       status: item.status || ""
     };
   }
@@ -1303,7 +1330,7 @@
     if (title) {
       title.textContent =
         (D.politician && D.politician.name) ||
-        "鈴木正人";
+        "é´æ¨æ­£äºº";
     }
 
     renderHero();
@@ -1318,7 +1345,7 @@
   var headerShare = document.getElementById("headerShare");
 
   if (headerShare) {
-    headerShare.textContent = "このページをシェア";
+    headerShare.textContent = "ãã®ãã¼ã¸ãã·ã§ã¢";
     share(headerShare);
   }
 
