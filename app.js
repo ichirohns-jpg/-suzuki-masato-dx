@@ -1,598 +1,1369 @@
-<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#0b6b4c">
-  <title>鈴木正人｜活動報告更新</title>
-  <style>
-    :root{--g:#0b6b4c;--d:#073f2d;--m:#e7f6eb;--gold:#e8b84f;--ink:#1c3026;--muted:#66776c;--line:#d6e8da;--paper:#f7fbf7}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;font-size:17px;line-height:1.7}button,input,select,textarea{font:inherit}.top{padding:20px 16px;background:linear-gradient(135deg,var(--d),var(--g));color:#fff}.top-inner,.main{width:min(100% - 24px,820px);margin:auto}.top h1{margin:0;font-size:clamp(25px,7vw,38px);line-height:1.3}.top p{margin:5px 0 0;color:#ddf1e2}.main{padding:14px 0 50px}.card{margin:14px 0;padding:20px 16px;border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:0 8px 24px #073f2d12}.card h2{margin:0 0 14px;color:var(--d);font-size:24px}.label{display:block;margin:0 0 6px;font-weight:900}.field{margin-bottom:16px}.field:last-child{margin-bottom:0}input,select,textarea{width:100%;border:1px solid #cbded0;border-radius:11px;background:#fff;color:var(--ink);font-size:17px}input,select{min-height:50px;padding:9px 11px}textarea{min-height:170px;padding:10px 11px;resize:vertical}input:focus,select:focus,textarea:focus{outline:0;border-color:var(--g);box-shadow:0 0 0 4px #0b6b4c1c}.grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}.paste-row{display:flex;gap:8px;align-items:stretch}.paste-row input{flex:1;min-width:0}.paste-button{min-width:145px;padding:8px 12px;border:1px solid var(--g);border-radius:11px;background:var(--m);color:var(--g);font-weight:900;cursor:pointer}.video-preview{display:none;position:relative;width:100%;margin-top:12px;padding-top:56.25%;overflow:hidden;border-radius:13px;background:#001c14}.video-preview.open{display:block}.video-preview iframe{position:absolute;inset:0;width:100%;height:100%;border:0}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}.button{min-height:50px;padding:9px 15px;border:1px solid var(--g);border-radius:999px;background:var(--g);color:#fff;font-weight:900;cursor:pointer}.button.secondary{background:#fff;color:var(--g)}.button.gold{border-color:var(--gold);background:var(--gold);color:var(--d)}.button.danger{border-color:#b42318;background:#fff;color:#b42318}.status{display:none;margin-top:14px;padding:13px;border-radius:12px;white-space:pre-wrap}.status.show{display:block}.status.ok{background:#e8f7eb;color:#21613d}.status.error{background:#fff0f0;color:#8d2727}.status.loading{background:#edf5ff;color:#28547f}.article-list{display:grid;gap:10px}.article-item{padding:14px;border:1px solid var(--line);border-radius:14px;background:#fbfefb}.article-item strong{display:block;color:var(--d);font-size:18px;line-height:1.45}.article-item small{display:block;margin-top:3px;color:var(--muted)}.article-item p{margin:7px 0 0;color:#385344;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.article-item .actions{margin-top:10px}.hidden{display:none!important}.preview{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.preview figure{position:relative;width:85px;margin:0;overflow:hidden;border-radius:10px;background:var(--m)}.preview img{width:85px;height:70px;object-fit:cover}.preview figcaption{padding:2px;color:var(--muted);font-size:10px;text-align:center}.help{margin:5px 0;color:var(--muted);font-size:13px}.site-link{display:inline-block;margin-top:10px;color:var(--g);font-weight:900}.footer{padding:24px;color:var(--muted);font-size:13px;text-align:center}@media(max-width:560px){.grid{grid-template-columns:1fr}.actions{display:grid;grid-template-columns:1fr}.button{width:100%;min-height:54px}.card{padding:19px 14px}}
-  </style>
-  <style>
-    .preview {
-      align-items: flex-start;
-    }
+(function () {
+  "use strict";
 
-    .preview figure {
-      width: 140px;
-    }
+  var D = window.DX_DATA || {};
+  var GAS_URL = D.gasUrl || "";
+  var SITE_KEY = D.siteKey || "suzuki-masato-dx";
+  var app = document.getElementById("app");
+  var photos = (D.commonImages || []).filter(Boolean);
 
-    .preview img {
-      width: 140px;
-      height: 105px;
-      object-fit: contain;
-      background: #eef8f0;
-    }
+  function text(value) { return value == null ? "" : String(value); }
 
-    .preview-remove {
-      width: 100%;
-      min-height: 38px;
-      padding: 5px 6px;
-      border: 1px solid #b42318;
-      border-radius: 9px;
-      background: #fff;
-      color: #b42318;
-      font-size: 13px;
-      font-weight: 900;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-  <header class="top">
-    <div class="top-inner">
-      <h1>鈴木正人｜活動報告更新</h1>
-      <p>パスワード認証後、記事・写真・YouTube・関連リンクを更新できます。</p>
-    </div>
-  </header>
+  function listValue(value) {
+    if (Array.isArray(value)) return value;
 
-  <main class="main">
-    <section class="card">
-      <h2>管理者ログイン</h2>
-      <div class="field">
-        <label class="label" for="password">管理パスワード</label>
-        <input id="password" type="password" autocomplete="current-password">
-      </div>
-      <div class="actions">
-        <button id="load" class="button" type="button">ログインして記事一覧を読み込む</button>
-      </div>
-      <div id="status" class="status"></div>
-    </section>
+    var raw = text(value).trim();
 
-    <div id="operationArea" class="hidden">
-      <section class="card">
-        <h2>保存済みの記事</h2>
-        <div class="actions">
-          <button id="new" class="button secondary" type="button">新しい記事を書く</button>
-        </div>
-        <div id="list" class="article-list">
-          <p class="help">「記事一覧を読み込む」を押してください。</p>
-        </div>
-      </section>
+    if (!raw) return [];
 
-      <form id="editor" class="card">
-        <h2 id="editorTitle">新しい活動報告</h2>
-        <input id="newsId" type="hidden">
+    try {
+      var parsed = JSON.parse(raw);
 
-        <div class="grid">
-          <div class="field">
-            <label class="label" for="date">日付</label>
-            <input id="date" type="date" required>
-          </div>
+      if (Array.isArray(parsed)) return parsed;
+    } catch (error) {}
 
-          <div class="field">
-            <label class="label" for="state">公開状態</label>
-            <select id="state">
-              <option value="公開">公開</option>
-              <option value="下書き">下書き</option>
-              <option value="非公開">非公開</option>
-            </select>
-          </div>
-        </div>
+    return raw.split(/[\n,]/).map(function (item) {
+      return item.trim();
+    }).filter(Boolean);
+  }
 
-        <div class="field">
-          <label class="label" for="title">活動報告タイトル</label>
-          <input id="title" required>
-        </div>
+  function normalizeYoutubeUrl(value) {
+    return text(value).trim().replace(/\s+/g, "");
+  }
 
-        <div class="field">
-          <label class="label" for="body">活動報告本文</label>
-          <textarea id="body" required></textarea>
-        </div>
+  function normalizeImages(item) {
+    if (!item) return [];
 
-        <div class="grid">
-          <div class="field">
-            <label class="label" for="video">YouTube動画URL（共有からコピーして貼り付け）</label>
-            <div class="paste-row">
-              <input id="video" type="text" inputmode="url" autocomplete="url" placeholder="YouTubeの共有→リンクをコピー">
-              <button id="pasteVideo" class="paste-button" type="button">コピーを貼る</button>
-            </div>
-            <p class="help">YouTubeアプリの「共有」→「リンクをコピー」→この欄へ貼り付けます。保存後、公開ページ内で再生します。</p>
-            <div id="videoPreview" class="video-preview"></div>
-          </div>
+    var images = listValue(
+      item.images ||
+      item.imageUrls ||
+      item.photos ||
+      item.photoUrls
+    );
 
-          <div class="field">
-            <label class="label" for="external">関連リンク</label>
-            <input id="external" type="url" placeholder="任意">
-          </div>
-        </div>
+    [1, 2, 3, 4, 5, 6].forEach(function (number) {
+      var value =
+        item["image" + number] ||
+        item["image_" + number] ||
+        item["photo" + number] ||
+        item["photo_" + number];
 
-        <div class="field">
-          <label class="label" for="images">活動報告写真（最大6枚）</label>
-          <input id="images" type="file" accept="image/*" multiple>
-        <p class="help">写真は最大6枚まで。保存済み写真を外してから新しい写真に交換できます。</p>
-          <div id="preview" class="preview"></div>
-        </div>
+      if (value) images.push(value);
+    });
 
-        <div class="actions">
-          <button class="button gold" type="submit">この記事を保存する</button>
-          <button id="cancel" class="button secondary" type="button">入力をクリア</button>
-        </div>
-      </form>
-    </div>
+    return images.map(function (value) {
+      return text(value).trim();
+    }).filter(Boolean);
+  }
 
-    <a class="site-link" href="https://ichirohns-jpg.github.io/-suzuki-masato-dx/" target="_blank" rel="noopener">公開ページを開く</a>
-  </main>
+  function articleVideo(item) {
+    if (!item) return "";
 
-  <footer class="footer">鈴木正人｜活動報告更新</footer>
+    var value =
+      item.videoUrl ||
+      item.videoURL ||
+      item.video_url ||
+      item.youtubeUrl ||
+      item.youtube_url ||
+      item.youtubeURL ||
+      item.youtube ||
+      item.video ||
+      item["åç»URL"] ||
+      item["YouTube URL"] ||
+      item["YouTube"] ||
+      "";
 
-  <script>
-    "use strict";
+    return normalizeYoutubeUrl(value);
+  }
 
-    var GAS_URL="https://script.google.com/macros/s/AKfycbyC5VN3w3hDcJB13eK9YL9x5ulg7T-P3h0hpo5eLm7i6js4uOJ731pP0QMCAigCxGTyBQ/exec";
-    var SITE_KEY="suzuki-masato-dx";
-    var MAX_IMAGES=6;
-    var currentImages=[];
-    var newImages=[];
-    var $=function(id){return document.getElementById(id)};
+  function socialUrls() {
+    var urls = [];
 
-    function status(message,kind){
-      $("status").textContent=message;
-      $("status").className="status show "+kind
-    }
-
-    function password(){
-      return $("password").value.trim()
-    }
-
-    function normalizeYoutubeUrl(value){
-      return String(value||"").trim().replace(/\s+/g,"")
-    }
-
-    function itemYoutubeUrl(item){
-      if(!item)return"";
-
-      var video=normalizeYoutubeUrl(
-        item.videoUrl||
-        item.videoURL||
-        item.video_url||
-        item.youtubeUrl||
-        item.youtube_url||
-        item.youtubeURL||
-        item.youtube||
-        item.video||
-        item["動画URL"]||
-        item["YouTube URL"]||
-        item["YouTube"]||
-        ""
-      );
-
-      if(video)return video;
-
-      return youtubeId(item.externalUrl||"")
-        ? normalizeYoutubeUrl(item.externalUrl)
-        : ""
-    }
-
-    function itemId(item){
-      if(!item)return"";
-
-      return String(
-        item.id||
-        item.newsId||
-        item.ID||
-        item["ID"]||
-        ""
-      ).trim()
-    }
-
-    function youtubeId(url){
-      var match=normalizeYoutubeUrl(url).match(
-        /(?:[?&]v=|youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|shorts\/|live\/|embed\/|v\/))([A-Za-z0-9_-]{6,})/i
-      );
-
-      return match?match[1]:""
-    }
-
-    function showVideoPreview(){
-      var box=$("videoPreview");
-      var id=youtubeId($("video").value);
-
-      box.innerHTML="";
-
-      if(!id){
-        box.classList.remove("open");
-        return
+    function add(value) {
+      if (Array.isArray(value)) {
+        value.forEach(add);
+        return;
       }
 
-      var frame=document.createElement("iframe");
-      frame.src="https://www.youtube-nocookie.com/embed/"+id+"?playsinline=1&rel=0";
-      frame.title="YouTube動画プレビュー";
-      frame.loading="lazy";
-      frame.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-      frame.allowFullscreen=true;
+      if (value && typeof value === "object") {
+        add(value.url || value.href || value.link || value.value || "");
+        return;
+      }
 
-      box.appendChild(frame);
-      box.classList.add("open")
-    }
+      listValue(value).forEach(function (item) {
+        var url = text(item).trim();
 
-    function api(data){
-      return fetch(GAS_URL,{
-        method:"POST",
-        headers:{"Content-Type":"text/plain;charset=utf-8"},
-        body:JSON.stringify(data)
-      }).then(function(r){
-        return r.text()
-      }).then(function(text){
-        try{
-          return JSON.parse(text)
-        }catch(error){
-          throw new Error("GASから正しい返答を受け取れませんでした。")
+        if (!url || /ameblo\.jp/i.test(url)) return;
+
+        if (urls.indexOf(url) < 0) {
+          urls.push(url);
         }
-      })
+      });
     }
 
-    function toDate(value){
-      var d=new Date(value);
-      if(!value)return"";
-      if(/^\d{4}-\d{2}-\d{2}$/.test(value))return value;
-      return isNaN(d.getTime())?value:d.toISOString().slice(0,10)
+    [
+      D.sns,
+      D.socials,
+      D.facebook,
+      D.facebookUrl,
+      D.facebookURL,
+      D.x,
+      D.xUrl,
+      D.xURL,
+      D.twitter,
+      D.twitterUrl,
+      D.twitterURL,
+      D.instagram,
+      D.instagramUrl,
+      D.instagramURL,
+      D.youtubeChannel,
+      D.youtubeChannelUrl,
+      D.youtube,
+      D.youtubeUrl,
+      D.youtubeURL,
+      D.youtube_url
+    ].forEach(add);
+
+    return urls;
+  }
+
+  function el(tag, className) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    return node;
+  }
+
+  function addText(parent, tag, className, value) {
+    var node = el(tag, className);
+    node.textContent = text(value);
+    parent.appendChild(node);
+    return node;
+  }
+
+  function validUrl(url) {
+    return /^https?:\/\//i.test(text(url).trim());
+  }
+
+  function hostname(url) {
+    try {
+      return new URL(url).hostname.replace(/^www\./i, "");
+    } catch (error) {
+      return "å¬å¼ãªã³ã¯";
+    }
+  }
+
+  function addImage(parent, src, alt, className) {
+    if (!src) return null;
+
+    var image = el("img", className || "");
+    image.src = src;
+    image.alt = alt || "é´æ¨æ­£äººã®æ´»ååç";
+    image.loading = "lazy";
+    image.decoding = "async";
+
+    image.onerror = function () {
+      var figure = image.closest("figure");
+
+      if (figure) {
+        figure.remove();
+      } else {
+        image.remove();
+      }
+    };
+
+    parent.appendChild(image);
+    return image;
+  }
+
+  function addLink(parent, label, url, className) {
+    if (!url || (!validUrl(url) && text(url).charAt(0) !== "#")) {
+      return null;
     }
 
-    function clearEditor(){
-      $("newsId").value="";
-      $("date").value=new Date().toISOString().slice(0,10);
-      $("title").value="";
-      $("body").value="";
-      $("video").value="";
-      $("external").value="";
-      $("state").value="公開";
-      currentImages=[];
-      newImages=[];
-      $("preview").innerHTML="";
-      $("editorTitle").textContent="新しい活動報告";
-      $("images").value="";
-      showVideoPreview()
+    var link = el("a", className || "button");
+
+    link.href = url;
+    link.textContent = label;
+
+    if (text(url).charAt(0) !== "#") {
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
     }
 
-    function addPreviewItem(box,src,label,onRemove){
-      var f=document.createElement("figure");
-      var im=document.createElement("img");
-      var cap=document.createElement("figcaption");
-      var removeButton=document.createElement("button");
+    parent.appendChild(link);
+    return link;
+  }
 
-      im.src=src;
-      im.alt=label;
-      cap.textContent=label;
+  function addBody(parent, value) {
+    if (!value) return;
 
-      removeButton.type="button";
-      removeButton.className="preview-remove";
-      removeButton.textContent="この写真を外す";
-      removeButton.onclick=onRemove;
+    var node = el("div", "body-text");
+    var source = text(value);
+    var pattern = /(https?:\/\/[^\s]+)/gi;
+    var last = 0;
+    var match;
 
-      f.appendChild(im);
-      f.appendChild(cap);
-      f.appendChild(removeButton);
-      box.appendChild(f)
+    while ((match = pattern.exec(source))) {
+      node.appendChild(
+        document.createTextNode(source.slice(last, match.index))
+      );
+
+      if (isYoutubeUrl(match[0])) {
+        addYoutube(node, match[0]);
+      } else {
+        var link = document.createElement("a");
+
+        link.href = match[0];
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = match[0];
+
+        node.appendChild(link);
+      }
+
+      last = match.index + match[0].length;
     }
 
-    function showPreview(){
-      var box=$("preview");
-      box.innerHTML="";
+    node.appendChild(document.createTextNode(source.slice(last)));
+    parent.appendChild(node);
+  }
 
-      currentImages.forEach(function(src,i){
-        addPreviewItem(
-          box,
+  function isYoutubeUrl(url) {
+    return /(?:youtube\.com|youtube-nocookie\.com|youtu\.be)/i.test(
+      normalizeYoutubeUrl(url)
+    );
+  }
+
+  function youtubeId(url) {
+    var match = normalizeYoutubeUrl(url).match(
+      /(?:[?&]v=|youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|shorts\/|live\/|embed\/|v\/))([A-Za-z0-9_-]{6,})/i
+    );
+
+    return match ? match[1] : "";
+  }
+
+  function addYoutube(parent, url) {
+    var id = youtubeId(url);
+
+    if (!id) return;
+
+    var box = el("div", "video");
+    var frame = document.createElement("iframe");
+
+    frame.src =
+      "https://www.youtube-nocookie.com/embed/" +
+      id +
+      "?playsinline=1&rel=0&modestbranding=1";
+
+    frame.title = "æ´»åå ±ååç»";
+    frame.loading = "lazy";
+    frame.referrerPolicy = "strict-origin-when-cross-origin";
+
+    frame.allow =
+      "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+
+    frame.allowFullscreen = true;
+
+    box.appendChild(frame);
+    parent.appendChild(box);
+  }
+
+  function addArticleLink(parent, label, url, className) {
+    if (!url) return null;
+
+    if (isYoutubeUrl(url) && youtubeId(url)) {
+      return null;
+    }
+
+    return addLink(parent, label, url, className);
+  }
+
+  function share(button) {
+    button.onclick = function () {
+      var url = D.publicUrl || window.location.href;
+
+      if (navigator.share) {
+        navigator
+          .share({
+            title: D.title,
+            text: D.description,
+            url: url
+          })
+          .catch(function () {});
+
+        return;
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function () {
+          button.textContent = "ãªã³ã¯ãã³ãã¼ãã¾ãã";
+
+          window.setTimeout(function () {
+            button.textContent = "ãã®ãã¼ã¸ãã·ã§ã¢";
+          }, 2200);
+        });
+
+        return;
+      }
+
+      window.prompt("URLãã³ãã¼ãã¦ãã ãã", url);
+    };
+  }
+
+  function section(id, kicker, title, note) {
+    var root = el("section", "section");
+
+    root.id = id || "";
+
+    var heading = el("div", "section-heading");
+    var left = el("div");
+
+    addText(left, "p", "section-kicker", kicker);
+    addText(left, "h2", "section-title", title);
+
+    heading.appendChild(left);
+
+    if (note) {
+      addText(heading, "p", "section-label", note);
+    }
+
+    root.appendChild(heading);
+    app.appendChild(root);
+
+    return root;
+  }
+
+  function rail(parent, list, label, extraClass) {
+    var images = (list || []).filter(Boolean);
+
+    if (!images.length) return;
+
+    var row = el(
+      "div",
+      "photo-rail" + (extraClass ? " " + extraClass : "")
+    );
+
+    images.forEach(function (src, index) {
+      var figure = el("figure", "photo-card");
+
+      addImage(
+        figure,
+        src,
+        label + "åç" + (index + 1)
+      );
+
+      addText(
+        figure,
+        "figcaption",
+        "",
+        label + " " + (index + 1)
+      );
+
+      row.appendChild(figure);
+    });
+
+    parent.appendChild(row);
+  }
+
+  function socialInfo(url) {
+    var value = text(url).toLowerCase();
+
+    if (value.indexOf("ameblo.jp") >= 0) {
+      return null;
+    }
+
+    if (value.indexOf("facebook.com") >= 0) {
+      return {
+        name: "Facebookï¼ãã§ã¤ã¹ããã¯ï¼",
+        icon: "f",
+        css: "facebook"
+      };
+    }
+
+    if (value.indexOf("instagram.com") >= 0) {
+      return {
+        name: "Instagramï¼ã¤ã³ã¹ã¿ã°ã©ã ï¼",
+        icon: "â",
+        css: "instagram"
+      };
+    }
+
+    if (
+      value.indexOf("twitter.com") >= 0 ||
+      value.indexOf("x.com") >= 0
+    ) {
+      return {
+        name: "Xï¼æ§Twitterï¼",
+        icon: "X",
+        css: "x"
+      };
+    }
+
+    if (
+      value.indexOf("youtube.com") >= 0 ||
+      value.indexOf("youtu.be") >= 0
+    ) {
+      return {
+        name: "YouTube",
+        icon: "â¶",
+        css: "youtube"
+      };
+    }
+
+    return {
+      name: "å¬å¼ãªã³ã¯",
+      icon: "â",
+      css: "other"
+    };
+  }
+
+  function socialCard(parent, name, url, icon, css) {
+    if (!validUrl(url)) return;
+
+    var link = el("a", "social-card " + (css || "other"));
+
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+
+    addText(link, "span", "social-icon", icon);
+
+    var copy = el("span", "social-copy");
+
+    addText(copy, "strong", "social-name", name);
+    addText(copy, "small", "social-url", hostname(url));
+
+    link.appendChild(copy);
+    parent.appendChild(link);
+  }
+
+  function addSocialDestination(parent, name, url, icon, css) {
+    if (!url || text(url).toLowerCase().indexOf("ameblo.jp") >= 0) {
+      return;
+    }
+
+    if (isYoutubeUrl(url) && youtubeId(url)) {
+      addYoutube(parent, url);
+      return;
+    }
+
+    socialCard(parent, name, url, icon, css);
+  }
+
+  function articleSocialLinks(parent) {
+    var box = el("div", "article-social-links");
+    var grid = el("div", "article-social-grid");
+
+    addText(
+      box,
+      "h4",
+      "article-social-title",
+      "ãã®è¨äºãã·ã§ã¢"
+    );
+
+    var shareUrl = D.publicUrl || window.location.href;
+    var shareTitle = D.title || "é´æ¨æ­£äººã®æ´»åå ±å";
+
+    function addShareLink(label, icon, css, url) {
+      var link = el("a", "article-social-button " + css);
+
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+
+      addText(link, "span", "article-social-icon", icon);
+      addText(link, "span", "article-social-name", label);
+
+      grid.appendChild(link);
+    }
+
+    addShareLink(
+      "Facebookã§ã·ã§ã¢",
+      "f",
+      "facebook",
+      "https://www.facebook.com/sharer/sharer.php?u=" +
+        encodeURIComponent(shareUrl)
+    );
+
+    addShareLink(
+      "Xã§ã·ã§ã¢",
+      "X",
+      "x",
+      "https://twitter.com/intent/tweet?text=" +
+        encodeURIComponent(shareTitle) +
+        "&url=" +
+        encodeURIComponent(shareUrl)
+    );
+
+    addShareLink(
+      "LINEã§éã",
+      "L",
+      "line",
+      "https://line.me/R/msg/text/?" +
+        encodeURIComponent(shareTitle + "\n" + shareUrl)
+    );
+
+    var copyButton = document.createElement("button");
+
+    copyButton.type = "button";
+    copyButton.className = "article-social-button copy";
+
+    addText(copyButton, "span", "article-social-icon", "â");
+    addText(copyButton, "span", "article-social-name", "URLãã³ãã¼");
+
+    copyButton.addEventListener("click", function () {
+      var name = copyButton.querySelector(".article-social-name");
+
+      function copied() {
+        if (name) name.textContent = "ã³ãã¼ãã¾ãã";
+
+        window.setTimeout(function () {
+          if (name) name.textContent = "URLãã³ãã¼";
+        }, 1800);
+      }
+
+      function fallback() {
+        window.prompt("ãã®URLãã³ãã¼ãã¦ãã ãã", shareUrl);
+      }
+
+      if (
+        navigator.clipboard &&
+        typeof navigator.clipboard.writeText === "function"
+      ) {
+        navigator.clipboard.writeText(shareUrl).then(copied).catch(fallback);
+      } else {
+        fallback();
+      }
+    });
+
+    grid.appendChild(copyButton);
+    box.appendChild(grid);
+    parent.appendChild(box);
+  }
+
+  function renderHero() {
+    var person = D.politician || {};
+
+    var root = el("section", "hero");
+    var inner = el("div", "hero-inner");
+    var copy = el("div", "hero-copy");
+    var visual = el("div", "hero-visual");
+    var collage = el("div", "hero-collage");
+
+    var list = [
+      photos[5],
+      photos[0],
+      photos[3],
+      photos[4]
+    ].filter(Boolean);
+
+    if (!list.length) {
+      list = photos.slice(0, 4);
+    }
+
+    addText(
+      copy,
+      "p",
+      "hero-kicker",
+      person.role || "å°åã®å£°ãçæ¿ã¸"
+    );
+
+    addText(
+      copy,
+      "h2",
+      "hero-name",
+      person.name || "é´æ¨æ­£äºº"
+    );
+
+    addText(
+      copy,
+      "p",
+      "hero-role",
+      [person.area, "æ´»åå ±å"].filter(Boolean).join("ï½")
+    );
+
+    addText(
+      copy,
+      "p",
+      "hero-lead",
+      D.appeal || D.description
+    );
+
+    var actions = el("div", "hero-actions");
+
+    addLink(
+      actions,
+      "æ´»åå ±åãè¦ã",
+      "#activity",
+      "button gold"
+    );
+
+    addLink(
+      actions,
+      "ãã­ãã£ã¼ã«",
+      "#profile",
+      "button secondary"
+    );
+
+    addLink(
+      actions,
+      "å¬å¼ãµã¤ã",
+      D.officialSite,
+      "button"
+    );
+
+    var shareButton = el("button", "share-button");
+
+    shareButton.type = "button";
+    shareButton.textContent = "ãã®ãã¼ã¸ãã·ã§ã¢";
+
+    share(shareButton);
+
+    actions.appendChild(shareButton);
+    copy.appendChild(actions);
+
+    var main = el("figure", "collage-main");
+
+    addImage(
+      main,
+      list[0] || photos[0],
+      "é´æ¨æ­£äººã®æ´»ååç"
+    );
+
+    collage.appendChild(main);
+
+    if (list[1]) {
+      var small = el("figure", "collage-small");
+
+      addImage(
+        small,
+        list[1],
+        "é´æ¨æ­£äººã®æ´»ååç"
+      );
+
+      collage.appendChild(small);
+    }
+
+    if (list.length > 2) {
+      var mini = el("div", "collage-mini");
+
+      list.slice(2, 4).forEach(function (src, index) {
+        var figure = el("figure");
+
+        addImage(
+          figure,
           src,
-          "保存済み写真"+(i+1),
-          function(){
-            currentImages.splice(i,1);
-            showPreview()
-          }
-        )
+          "é´æ¨æ­£äººã®æ´»ååç" + (index + 3)
+        );
+
+        mini.appendChild(figure);
       });
 
-      newImages.forEach(function(item,i){
-        addPreviewItem(
-          box,
-          item.data,
-          "新しく選んだ写真"+(i+1),
-          function(){
-            newImages.splice(i,1);
-            showPreview()
-          }
-        )
-      })
+      collage.appendChild(mini);
     }
 
-    function edit(item){
-      $("newsId").value=itemId(item);
-      $("date").value=toDate(item.date);
-      $("title").value=item.title||"";
-      $("body").value=item.body||"";
-      $("video").value=itemYoutubeUrl(item);
-      $("external").value=youtubeId(item.externalUrl||"")
-        ? ""
-        : item.externalUrl||"";
-      $("state").value=item.status||"公開";
-      currentImages=(item.images||[]).filter(Boolean).slice(0,MAX_IMAGES);
-      newImages=[];
-      $("images").value="";
-      $("editorTitle").textContent="活動報告を編集";
-      showPreview();
+    addText(
+      collage,
+      "p",
+      "collage-note",
+      "å¿æ¨å¸ããçæ¿ã¸"
+    );
 
-      window.scrollTo({
-        top:document.getElementById("editor").offsetTop-80,
-        behavior:"smooth"
-      })
+    visual.appendChild(collage);
+
+    var portrait = el("figure", "hero-portrait");
+
+    addImage(
+      portrait,
+      person.image || photos[0],
+      "é´æ¨æ­£äºº"
+    );
+
+    addText(
+      portrait,
+      "span",
+      "portrait-label",
+      "é´æ¨æ­£äºº"
+    );
+
+    visual.appendChild(portrait);
+
+    inner.appendChild(copy);
+    inner.appendChild(visual);
+    root.appendChild(inner);
+    app.appendChild(root);
+  }
+
+  function renderActivity() {
+    var article = D.article;
+
+    var root = section(
+      "activity",
+      "ACTIVITY REPORT",
+      "æ´»åå ±å",
+      "ææ°ã®æ´»å"
+    );
+
+    if (!article) {
+      addText(
+        root,
+        "p",
+        "activity-empty",
+        "ç¾å¨ãå¬éä¸­ã®æ´»åå ±åã¯ããã¾ããã"
+      );
+
+      return;
     }
 
-    function render(items){
-      var box=$("list");
-      box.innerHTML="";
+    var images = normalizeImages(article);
 
-      if(!items.length){
-        box.innerHTML='<p class="help">記事はまだありません。</p>';
-        return
+    if (images.length) {
+      rail(root, images, "æ´»ååç", "activity-photo-rail");
+    }
+
+    var content = el("div", "activity-content activity-content-full");
+
+    addText(
+      content,
+      "div",
+      "date-badge",
+      article.date
+    );
+
+    addText(
+      content,
+      "h3",
+      "content-title",
+      article.title
+    );
+
+    addBody(content, article.body);
+
+    var activityYoutube =
+      article.youtube ||
+      D.youtube ||
+      D.youtubeUrl ||
+      "";
+
+    if (
+      validUrl(article.externalUrl) &&
+      !(isYoutubeUrl(article.externalUrl) && youtubeId(article.externalUrl))
+    ) {
+      var actions = el("div", "button-row article-actions");
+
+      addArticleLink(
+        actions,
+        "é¢é£ãªã³ã¯ãéã",
+        article.externalUrl,
+        "button"
+      );
+
+      if (actions.children.length) {
+        content.appendChild(actions);
       }
-
-      items.filter(function(x){
-        return !x.siteKey||x.siteKey==="suzuki-masato-dx"
-      }).forEach(function(item){
-        var row=document.createElement("article");
-        var title=document.createElement("strong");
-        var date=document.createElement("small");
-        var body=document.createElement("p");
-        var actions=document.createElement("div");
-        var editButton=document.createElement("button");
-        var deleteButton=document.createElement("button");
-
-        row.className="article-item";
-        title.textContent=item.title||"無題";
-        date.textContent=(item.date||"")+"｜"+(item.status||"");
-        body.textContent=item.body||"";
-        actions.className="actions";
-
-        editButton.className="button secondary";
-        editButton.type="button";
-        editButton.textContent="編集";
-        editButton.onclick=function(){
-          edit(item)
-        };
-
-        deleteButton.className="button danger";
-        deleteButton.type="button";
-        deleteButton.textContent="削除";
-        deleteButton.onclick=function(){
-          deleteArticle(item)
-        };
-
-        actions.appendChild(editButton);
-        actions.appendChild(deleteButton);
-        row.appendChild(title);
-        row.appendChild(date);
-        row.appendChild(body);
-        row.appendChild(actions);
-        box.appendChild(row)
-      })
     }
 
-    function deleteArticle(item){
-      var newsId=itemId(item);
+    addYoutube(content, activityYoutube);
+    articleSocialLinks(content);
 
-      if(!newsId){
-        status("この記事のIDを取得できないため削除できません。","error");
-        return
-      }
+    root.appendChild(content);
+  }
 
-      if(!window.confirm(
-        "この記事を削除しますか？\n削除すると元に戻せません。"
-      ))return;
+  function archiveDateParts(value) {
+    var raw = text(value).trim();
 
-      status("削除しています。","loading");
+    var match = raw.match(
+      /(\d{4})[\/\-.å¹´](\d{1,2})(?:[\/\-.æ](\d{1,2})æ¥?)?/
+    );
 
-      api({
-        mode:"adminNewsDelete",
-        adminPassword:password(),
-        siteKey:"suzuki-masato-dx",
-        newsId:newsId
-      }).then(function(data){
-        if(!data||data.success!==true){
-          throw new Error((data&&data.message)||"削除に失敗しました。")
-        }
-
-        clearEditor();
-        status("記事を削除しました。","ok");
-        loadList()
-      }).catch(function(error){
-        status(error.message,"error")
-      })
+    if (match) {
+      return {
+        year: Number(match[1]),
+        month: Number(match[2]),
+        day: Number(match[3] || 1)
+      };
     }
 
-    function loadList(){
-      if(!password()){
-        status("管理パスワードを入力してください。","error");
-        return
-      }
+    var date = new Date(raw);
 
-      status("記事一覧を読み込んでいます。","loading");
-
-      api({
-        mode:"adminNewsList",
-        adminPassword:password(),
-        siteKey:"suzuki-masato-dx"
-      }).then(function(data){
-        if(
-          !data||
-          data.success!==true||
-          !Array.isArray(data.news)
-        ){
-          throw new Error((data&&data.message)||"読み込みに失敗しました。")
-        }
-
-        render(data.news||[]);
-        $("operationArea").classList.remove("hidden");
-        $("password").readOnly=true;
-        $("load").textContent="認証済み";
-        status("認証しました。更新画面を開きました。","ok")
-      }).catch(function(error){
-        status(error.message,"error")
-      })
+    if (!isNaN(date.getTime())) {
+      return {
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        day: date.getDate()
+      };
     }
 
-    function readImage(file){
-      return new Promise(function(resolve,reject){
-        var reader=new FileReader();
-
-        reader.onload=function(){
-          var image=new Image();
-
-          image.onload=function(){
-            var max=1500;
-            var scale=Math.min(
-              1,
-              max/Math.max(image.naturalWidth,image.naturalHeight)
-            );
-            var canvas=document.createElement("canvas");
-
-            canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));
-            canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));
-
-            canvas.getContext("2d").drawImage(
-              image,
-              0,
-              0,
-              canvas.width,
-              canvas.height
-            );
-
-            resolve(canvas.toDataURL("image/jpeg",.82))
-          };
-
-          image.onerror=reject;
-          image.src=reader.result
-        };
-
-        reader.onerror=reject;
-        reader.readAsDataURL(file)
-      })
-    }
-
-    $("images").onchange=function(){
-      var files=Array.from($("images").files||[])
-        .slice(0,Math.max(0,MAX_IMAGES-currentImages.length));
-
-      newImages=[];
-
-      Promise.all(
-        files.map(function(file){
-          return readImage(file)
-        })
-      ).then(function(dataList){
-        newImages=dataList.map(function(data){
-          return{data:data}
-        });
-        showPreview()
-      })
+    return {
+      year: 0,
+      month: 0,
+      day: 0
     };
+  }
 
-    $("video").oninput=showVideoPreview;
+  function archiveMonthKey(value) {
+    var parts = archiveDateParts(value);
 
-    $("pasteVideo").onclick=function(){
-      if(!navigator.clipboard||!navigator.clipboard.readText){
-        $("video").focus();
-        status("このiPhoneでは自動貼り付けが使えません。入力欄を長押しして「ペースト」を選んでください。","ok");
-        return
+    if (!parts.year || !parts.month) {
+      return "unknown";
+    }
+
+    return (
+      parts.year +
+      "-" +
+      String(parts.month).padStart(2, "0")
+    );
+  }
+
+  function archiveMonthLabel(key) {
+    if (key === "unknown") {
+      return "æ¥ä»æªè¨­å®";
+    }
+
+    var values = key.split("-");
+
+    return (
+      values[0] +
+      "å¹´" +
+      Number(values[1]) +
+      "æ"
+    );
+  }
+
+  function archiveDateLabel(value) {
+    var parts = archiveDateParts(value);
+
+    if (!parts.year || !parts.month) {
+      return text(value) || "æ¥ä»æªè¨­å®";
+    }
+
+    return (
+      parts.year +
+      "å¹´" +
+      parts.month +
+      "æ" +
+      parts.day +
+      "æ¥"
+    );
+  }
+
+  function archiveDateNumber(value) {
+    var parts = archiveDateParts(value);
+
+    if (!parts.year || !parts.month) {
+      return 0;
+    }
+
+    return new Date(
+      parts.year,
+      parts.month - 1,
+      parts.day
+    ).getTime();
+  }
+
+  function renderArchive() {
+    var articles = (D.articles || []).filter(Boolean);
+
+    var root = section(
+      "archive",
+      "ARCHIVE",
+      "æå¥ã¢ã¼ã«ã¤ã",
+      "éå»ã®æ´»åå ±å"
+    );
+
+    if (!articles.length) {
+      addText(
+        root,
+        "p",
+        "archive-empty",
+        "å¬éä¸­ã®è¨äºã¯ã¾ã ããã¾ããã"
+      );
+
+      return;
+    }
+
+    var groups = {};
+    var keys = [];
+
+    articles.forEach(function (article) {
+      var key = archiveMonthKey(article.date);
+
+      if (!groups[key]) {
+        groups[key] = [];
+        keys.push(key);
       }
 
-      navigator.clipboard.readText().then(function(value){
-        $("video").value=normalizeYoutubeUrl(value);
-        showVideoPreview();
-        status("YouTubeリンクを貼り付けました。","ok")
-      }).catch(function(){
-        $("video").focus();
-        status("入力欄を長押しして「ペースト」を選んでください。","ok")
-      })
-    };
+      groups[key].push(article);
+    });
 
-    $("load").onclick=loadList;
-    $("new").onclick=clearEditor;
-    $("cancel").onclick=clearEditor;
+    keys.sort(function (a, b) {
+      if (a === "unknown") return 1;
+      if (b === "unknown") return -1;
 
-    $("editor").onsubmit=function(event){
-      event.preventDefault();
+      return b.localeCompare(a);
+    });
 
-      if(!password()){
-        status("管理パスワードを入力してください。","error");
-        return
-      }
+    keys.forEach(function (key) {
+      groups[key].sort(function (a, b) {
+        return (
+          archiveDateNumber(b.date) -
+          archiveDateNumber(a.date)
+        );
+      });
+    });
 
-      status("保存しています。","loading");
+    addText(
+      root,
+      "p",
+      "archive-note",
+      "æãé¸ã¶ã¨ããã®æã®æ´»åå ±åãã¾ã¨ãã¦ãè¦§ããã ãã¾ãã"
+    );
 
-      var youtube=normalizeYoutubeUrl($("video").value);
-      var external=normalizeYoutubeUrl($("external").value);
+    var tabs = el("div", "archive-months");
+    var groupsRoot = el("div", "archive-groups");
 
-      if(!youtube&&youtubeId(external)){
-        youtube=external;
-        external=""
-      }
+    function activate(key) {
+      Array.from(
+        tabs.querySelectorAll("button")
+      ).forEach(function (button) {
+        button.classList.toggle(
+          "active",
+          button.getAttribute("data-month") === key
+        );
+      });
 
-      if(youtubeId(external)){
-        external=""
-      }
+      Array.from(
+        groupsRoot.querySelectorAll(".archive-group")
+      ).forEach(function (group) {
+        group.hidden =
+          key !== "all" &&
+          group.dataset.month !== key;
+      });
+    }
 
-      var payload={
-        mode:"adminNewsSave",
-        adminPassword:password(),
-        siteKey:"suzuki-masato-dx",
-        newsId:$("newsId").value,
-        date:$("date").value,
-        title:$("title").value.trim(),
-        body:$("body").value.trim(),
-        videoUrl:youtube,
-        videoURL:youtube,
-        video_url:youtube,
-        youtubeUrl:youtube,
-        youtube_url:youtube,
-        youtubeURL:youtube,
-        youtube:youtube,
-        video:youtube,
-        externalUrl:external,
-        status:$("state").value,
-        existingImages:currentImages,
-        newImages:newImages.map(function(x,i){
-          return{
-            data:x.data,
-            name:"activity-"+(i+1)+".jpg",
-            mimeType:"image/jpeg"
-          }
-        })
+    function addTab(key, label) {
+      var button = document.createElement("button");
+
+      button.type = "button";
+      button.className = "archive-month-button";
+      button.setAttribute("data-month", key);
+      button.textContent = label;
+
+      button.onclick = function () {
+        activate(key);
       };
 
-      api(payload).then(function(data){
-        if(!data||data.success!==true){
-          throw new Error((data&&data.message)||"保存に失敗しました。")
+      tabs.appendChild(button);
+    }
+
+    addTab("all", "ãã¹ã¦");
+
+    keys.forEach(function (key) {
+      addTab(key, archiveMonthLabel(key));
+    });
+
+    keys.forEach(function (key, groupIndex) {
+      var group = el("section", "archive-group");
+
+      group.dataset.month = key;
+
+      addText(
+        group,
+        "h3",
+        "archive-group-title",
+        archiveMonthLabel(key)
+      );
+
+      var list = el("div", "archive-list");
+
+      groups[key].forEach(function (article, articleIndex) {
+        var card = document.createElement("details");
+        var summary = document.createElement("summary");
+        var content = el("div", "archive-card-content");
+
+        card.className = "archive-card";
+        card.open =
+          groupIndex === 0 &&
+          articleIndex === 0;
+
+        addText(
+          summary,
+          "span",
+          "archive-card-date",
+          archiveDateLabel(article.date)
+        );
+
+        addText(
+          summary,
+          "strong",
+          "archive-card-title",
+          article.title || "ç¡é¡ã®æ´»åå ±å"
+        );
+
+        var articleImages = normalizeImages(article);
+
+        if (articleImages.length) {
+          rail(
+            content,
+            articleImages,
+            "æ´»ååç",
+            "archive-photo-rail"
+          );
         }
 
-        clearEditor();
-        status("保存しました。","ok");
-        loadList()
-      }).catch(function(error){
-        status(error.message,"error")
-      })
-    };
+        addBody(content, article.body);
 
-    clearEditor();
-  </script>
-</body>
-</html>
+        var archiveYoutube = article.youtube || "";
+
+        if (
+          validUrl(article.externalUrl) &&
+          !(isYoutubeUrl(article.externalUrl) && youtubeId(article.externalUrl))
+        ) {
+          var archiveActions = el("div", "button-row article-actions");
+
+          addArticleLink(
+            archiveActions,
+            "é¢é£ãªã³ã¯ãéã",
+            article.externalUrl,
+            "button"
+          );
+
+          if (archiveActions.children.length) {
+            content.appendChild(archiveActions);
+          }
+        }
+
+        addYoutube(content, archiveYoutube);
+        articleSocialLinks(content);
+
+        card.appendChild(summary);
+        card.appendChild(content);
+        list.appendChild(card);
+      });
+
+      group.appendChild(list);
+      groupsRoot.appendChild(group);
+    });
+
+    root.appendChild(tabs);
+    root.appendChild(groupsRoot);
+
+    activate(keys[0]);
+  }
+
+  function renderProfile() {
+    var person = D.politician;
+
+    if (!person) return;
+
+    var root = section(
+      "profile",
+      "PROFILE",
+      "ãã­ãã£ã¼ã«",
+      "é´æ¨æ­£äººã«ã¤ãã¦"
+    );
+
+    var layout = el("div", "profile-layout reverse");
+    var media = el("div");
+    var content = el("div", "profile-content");
+
+    addImage(
+      media,
+      person.image || photos[0],
+      "é´æ¨æ­£äººã®ãã­ãã£ã¼ã«åç",
+      "profile-image"
+    );
+
+    addText(
+      content,
+      "h3",
+      "profile-name",
+      person.name
+    );
+
+    addText(
+      content,
+      "p",
+      "role-line",
+      [person.role, person.area].filter(Boolean).join("ï½")
+    );
+
+    addBody(content, person.profile);
+
+    layout.appendChild(media);
+    layout.appendChild(content);
+    root.appendChild(layout);
+  }
+
+  function renderPolicy() {
+    var person = D.politician;
+
+    if (!person) return;
+
+    var root = section(
+      "policy",
+      "POLICY",
+      "æ¿ç­ã»æ´»åã®æ±",
+      "å¤§åã«ãã¦ãããã¨"
+    );
+
+    var grid = el("div", "policy-grid");
+
+    text(person.policy)
+      .split(/\n/)
+      .map(function (line) {
+        return line.replace(/^ã»/, "").trim();
+      })
+      .filter(Boolean)
+      .forEach(function (line) {
+        addText(
+          grid,
+          "div",
+          "policy-item",
+          line
+        );
+      });
+
+    root.appendChild(grid);
+  }
+
+  function renderConsultation() {
+    var person = D.politician || {};
+
+    var root = section(
+      "consultation",
+      "CONSULTATION",
+      "å¸æ°ç¸è«",
+      "å°åã®å£°ããèãããã ãã"
+    );
+
+    var layout = el("div", "consultation-layout reverse");
+    var media = el("div");
+    var content = el("div", "consultation-content");
+
+    addImage(
+      media,
+      photos[4] || photos[0],
+      "å°åã®æ´»ååç",
+      "consultation-image"
+    );
+
+    var box = el("div", "consultation-box");
+
+    addBody(
+      box,
+      person.consultation || D.contact
+    );
+
+    addLink(
+      box,
+      "ãåãåãããã¼ã¸ãéã",
+      D.contactUrl,
+      "button"
+    );
+
+    content.appendChild(box);
+    layout.appendChild(media);
+    layout.appendChild(content);
+    root.appendChild(layout);
+  }
+
+  function renderSocial() {
+    var root = section(
+      "social",
+      "OFFICIAL / SNS",
+      "å¬å¼ãµã¤ãã»SNS",
+      "ææ°æå ±ã¯ãã¡ã"
+    );
+
+    var layout = el("div", "social-layout");
+    var image = el("div");
+    var content = el("div");
+
+    addImage(
+      image,
+      photos[5] || photos[0],
+      "é´æ¨æ­£äººã®æ´»ååç",
+      "social-image"
+    );
+
+    addText(
+      content,
+      "p",
+      "social-lead",
+      "å¬å¼ãã¼ã ãã¼ã¸ãSNSãããææ°ã®æ´»åããè¦§ããã ãã¾ãã"
+    );
+
+    var grid = el("div", "social-grid");
+
+    socialCard(
+      grid,
+      "å¬å¼ãã¼ã ãã¼ã¸",
+      D.officialSite,
+      "Web",
+      "other"
+    );
+
+    socialUrls().forEach(function (url) {
+        var info = socialInfo(url);
+
+        if (!info) return;
+
+        addSocialDestination(
+          grid,
+          info.name,
+          url,
+          info.icon,
+          info.css
+        );
+      });
+
+    socialCard(
+      grid,
+      "ãåãåãããã¼ã¸",
+      D.contactUrl,
+      "â",
+      "other"
+    );
+
+    content.appendChild(grid);
+    layout.appendChild(image);
+    layout.appendChild(content);
+    root.appendChild(layout);
+  }
+
+  function normalizeNews(item) {
+    if (
+      !item ||
+      (item.siteKey && item.siteKey !== SITE_KEY)
+    ) {
+      return null;
+    }
+
+    var videoUrl = articleVideo(item);
+    var externalUrl = item.externalUrl || "";
+
+    if (!videoUrl && isYoutubeUrl(externalUrl) && youtubeId(externalUrl)) {
+      videoUrl = externalUrl;
+      externalUrl = "";
+    }
+
+    if (isYoutubeUrl(externalUrl) && youtubeId(externalUrl)) {
+      externalUrl = "";
+    }
+
+    return {
+      id: item.id || item.newsId || "",
+      date: item.date,
+      title: item.title,
+      body: item.body,
+      images: normalizeImages(item),
+      youtube: videoUrl,
+      externalUrl: externalUrl,
+      status: item.status || ""
+    };
+  }
+
+  function loadRemoteArticles() {
+    if (!GAS_URL) {
+      return Promise.resolve({
+        ok: false,
+        articles: []
+      });
+    }
+
+    var url =
+      GAS_URL +
+      "?mode=publicNews" +
+      "&siteKey=" +
+      encodeURIComponent(SITE_KEY) +
+      "&limit=100" +
+      "&_=" +
+      Date.now();
+
+    return fetch(url, {
+      cache: "no-store"
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        var list =
+          data && Array.isArray(data.news)
+            ? data.news
+            : data && Array.isArray(data.articles)
+              ? data.articles
+              : data && Array.isArray(data.items)
+                ? data.items
+                : [];
+
+        var articles = list
+          .map(normalizeNews)
+          .filter(Boolean)
+          .sort(function (a, b) {
+            return (
+              archiveDateNumber(b.date) -
+              archiveDateNumber(a.date)
+            );
+          });
+
+        return {
+          ok: true,
+          articles: articles
+        };
+      })
+      .catch(function () {
+        return {
+          ok: false,
+          articles: []
+        };
+      });
+  }
+
+  function render() {
+    if (!app) return;
+
+    app.innerHTML = "";
+
+    var title = document.getElementById("siteTitle");
+
+    if (title) {
+      title.textContent =
+        (D.politician && D.politician.name) ||
+        "é´æ¨æ­£äºº";
+    }
+
+    renderHero();
+    renderActivity();
+    renderArchive();
+    renderProfile();
+    renderPolicy();
+    renderConsultation();
+    renderSocial();
+  }
+
+  var headerShare = document.getElementById("headerShare");
+
+  if (headerShare) {
+    headerShare.textContent = "ãã®ãã¼ã¸ãã·ã§ã¢";
+    share(headerShare);
+  }
+
+  render();
+
+  loadRemoteArticles().then(function (result) {
+    if (!result || !result.ok) return;
+
+    D.articles = result.articles || [];
+    D.article = D.articles[0] || null;
+
+    if (
+      D.article &&
+      D.article.images.length
+    ) {
+      D.articleImages = D.article.images;
+    }
+
+    render();
+  });
+})();
