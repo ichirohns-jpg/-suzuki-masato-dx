@@ -18,9 +18,7 @@
   --radius-md: 15px;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 html {
   scroll-behavior: smooth;
@@ -32,54 +30,20 @@ body {
   margin: 0;
   color: var(--ink);
   background:
-    radial-gradient(
-      circle at 100% 0,
-      rgba(85, 197, 126, .16),
-      transparent 22rem
-    ),
+    radial-gradient(circle at 100% 0, rgba(85, 197, 126, .16), transparent 22rem),
     var(--paper);
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Hiragino Kaku Gothic ProN",
-    "Yu Gothic",
-    Meiryo,
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
   font-size: 17px;
   line-height: 1.8;
   -webkit-text-size-adjust: 100%;
 }
 
-a {
-  color: inherit;
-}
-
-button {
-  font: inherit;
-}
-
-button,
-a {
-  -webkit-tap-highlight-color: transparent;
-}
-
-img {
-  display: block;
-  max-width: 100%;
-}
-
-h1,
-h2,
-h3,
-p,
-figure {
-  margin: 0;
-}
-
-ul {
-  margin: 0;
-  padding: 0;
-}
+a { color: inherit; }
+button { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+img { display: block; max-width: 100%; }
+h1, h2, h3, p, figure { margin: 0; }
+ul { margin: 0; padding: 0; }
 
 .site-header {
   position: sticky;
@@ -115,9 +79,7 @@ ul {
   object-position: center top;
 }
 
-.header-copy {
-  min-width: 0;
-}
+.header-copy { min-width: 0; }
 
 .eyebrow {
   color: var(--green-700);
@@ -156,9 +118,7 @@ ul {
   padding: 24px 0 62px;
 }
 
-.hero {
-  margin-bottom: 28px;
-}
+.hero { margin-bottom: 28px; }
 
 .hero-inner {
   display: grid;
@@ -168,19 +128,11 @@ ul {
   padding: clamp(24px, 5vw, 55px);
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
-  background:
-    linear-gradient(
-      135deg,
-      #fff 0%,
-      #fff 55%,
-      #e3f5e8 100%
-    );
+  background: linear-gradient(135deg, #fff 0%, #fff 55%, #e3f5e8 100%);
   box-shadow: var(--shadow);
 }
 
-.hero-copy {
-  min-width: 0;
-}
+.hero-copy { min-width: 0; }
 
 .hero-kicker,
 .section-kicker {
@@ -244,10 +196,7 @@ ul {
   text-decoration: none;
   cursor: pointer;
   box-shadow: 0 5px 12px rgba(7, 63, 45, .12);
-  transition:
-    transform .18s ease,
-    box-shadow .18s ease,
-    background .18s ease;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
 }
 
 .button.secondary {
@@ -388,7 +337,7 @@ ul {
   padding: clamp(22px, 4vw, 42px);
   border: 1px solid var(--line);
   border-radius: var(--radius-xl);
-  background: rgba(255, 255, 255, .98);
+  background: rgba(255,255,255,.98);
   box-shadow: var(--shadow-small);
   scroll-margin-top: 92px;
 }
@@ -549,8 +498,6 @@ ul {
 }
 
 .article-social-links {
-  display: block;
-  width: 100%;
   margin-top: 24px;
   padding-top: 18px;
   border-top: 2px solid var(--mint);
@@ -583,7 +530,7 @@ ul {
   font-size: 14px;
   font-weight: 900;
   text-decoration: none;
-  box-shadow: 0 4px 10px rgba(7, 63, 45, .07);
+  box-shadow: 0 4px 10px rgba(7,63,45,.07);
 }
 
 .article-social-icon {
@@ -726,10 +673,8 @@ ul {
   border-radius: 16px;
   background: var(--white);
   text-decoration: none;
-  box-shadow: 0 5px 14px rgba(7, 63, 45, .06);
-  transition:
-    transform .18s ease,
-    box-shadow .18s ease;
+  box-shadow: 0 5px 14px rgba(7,63,45,.06);
+  transition: transform .18s ease, box-shadow .18s ease;
 }
 
 .social-icon {
