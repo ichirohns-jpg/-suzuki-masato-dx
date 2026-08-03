@@ -10,5 +10,13 @@
   "theme_color": "#287653",
   "description": "埼玉県議会議員・鈴木正人のプロフィール、政策、活動報告、市民相談、公式サイトやSNSをまとめたページです。",
   "lang": "ja",
-  "dir": "ltr"
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "images/dx-suzuki-01.jpg?v=icon-2",
+      "sizes": "any",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
 }
