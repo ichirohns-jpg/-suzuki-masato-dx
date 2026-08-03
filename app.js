@@ -13,12 +13,10 @@
     if (Array.isArray(value)) return value;
 
     var raw = text(value).trim();
-
     if (!raw) return [];
 
     try {
       var parsed = JSON.parse(raw);
-
       if (Array.isArray(parsed)) return parsed;
     } catch (error) {}
 
@@ -239,7 +237,7 @@
       /(?:[?&]v=|youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|shorts\/|live\/|embed\/|v\/))([A-Za-z0-9_-]{6,})/i
     );
 
-    return match ? match[1].split(/[?&#/])[0] : "";
+    return match ? match[1] : "";
   }
 
   function addYoutube(parent, url) {
@@ -532,8 +530,19 @@
       list = photos.slice(0, 4);
     }
 
-    addText(copy, "p", "hero-kicker", person.role || "地域の声を県政へ");
-    addText(copy, "h2", "hero-name", person.name || "鈴木正人");
+    addText(
+      copy,
+      "p",
+      "hero-kicker",
+      person.role || "地域の声を県政へ"
+    );
+
+    addText(
+      copy,
+      "h2",
+      "hero-name",
+      person.name || "鈴木正人"
+    );
 
     addText(
       copy,
@@ -542,13 +551,35 @@
       [person.area, "活動報告"].filter(Boolean).join("｜")
     );
 
-    addText(copy, "p", "hero-lead", D.appeal || D.description);
+    addText(
+      copy,
+      "p",
+      "hero-lead",
+      D.appeal || D.description
+    );
 
     var actions = el("div", "hero-actions");
 
-    addLink(actions, "活動報告を見る", "#activity", "button gold");
-    addLink(actions, "プロフィール", "#profile", "button secondary");
-    addLink(actions, "公式サイト", D.officialSite, "button");
+    addLink(
+      actions,
+      "活動報告を見る",
+      "#activity",
+      "button gold"
+    );
+
+    addLink(
+      actions,
+      "プロフィール",
+      "#profile",
+      "button secondary"
+    );
+
+    addLink(
+      actions,
+      "公式サイト",
+      D.officialSite,
+      "button"
+    );
 
     var shareButton = el("button", "share-button");
 
@@ -562,13 +593,23 @@
 
     var main = el("figure", "collage-main");
 
-    addImage(main, list[0] || photos[0], "鈴木正人の活動写真");
+    addImage(
+      main,
+      list[0] || photos[0],
+      "鈴木正人の活動写真"
+    );
+
     collage.appendChild(main);
 
     if (list[1]) {
       var small = el("figure", "collage-small");
 
-      addImage(small, list[1], "鈴木正人の活動写真");
+      addImage(
+        small,
+        list[1],
+        "鈴木正人の活動写真"
+      );
+
       collage.appendChild(small);
     }
 
@@ -590,14 +631,29 @@
       collage.appendChild(mini);
     }
 
-    addText(collage, "p", "collage-note", "志木市から県政へ");
+    addText(
+      collage,
+      "p",
+      "collage-note",
+      "志木市から県政へ"
+    );
 
     visual.appendChild(collage);
 
     var portrait = el("figure", "hero-portrait");
 
-    addImage(portrait, person.image || photos[0], "鈴木正人");
-    addText(portrait, "span", "portrait-label", "鈴木正人");
+    addImage(
+      portrait,
+      person.image || photos[0],
+      "鈴木正人"
+    );
+
+    addText(
+      portrait,
+      "span",
+      "portrait-label",
+      "鈴木正人"
+    );
 
     visual.appendChild(portrait);
 
@@ -640,8 +696,20 @@
 
     var content = el("div", "activity-content activity-content-full");
 
-    addText(content, "div", "date-badge", article.date);
-    addText(content, "h3", "content-title", article.title);
+    addText(
+      content,
+      "div",
+      "date-badge",
+      article.date
+    );
+
+    addText(
+      content,
+      "h3",
+      "content-title",
+      article.title
+    );
+
     addBody(content, article.body);
 
     var activityYoutube =
@@ -727,7 +795,12 @@
 
     var values = key.split("-");
 
-    return values[0] + "年" + Number(values[1]) + "月";
+    return (
+      values[0] +
+      "年" +
+      Number(values[1]) +
+      "月"
+    );
   }
 
   function archiveDateLabel(value) {
@@ -976,7 +1049,12 @@
       "profile-image"
     );
 
-    addText(content, "h3", "profile-name", person.name);
+    addText(
+      content,
+      "h3",
+      "profile-name",
+      person.name
+    );
 
     addText(
       content,
@@ -1013,7 +1091,12 @@
       })
       .filter(Boolean)
       .forEach(function (line) {
-        addText(grid, "div", "policy-item", line);
+        addText(
+          grid,
+          "div",
+          "policy-item",
+          line
+        );
       });
 
     root.appendChild(grid);
@@ -1042,7 +1125,10 @@
 
     var box = el("div", "consultation-box");
 
-    addBody(box, person.consultation || D.contact);
+    addBody(
+      box,
+      person.consultation || D.contact
+    );
 
     addLink(
       box,
@@ -1118,7 +1204,6 @@
     content.appendChild(grid);
     layout.appendChild(image);
     layout.appendChild(content);
-
     root.appendChild(layout);
   }
 
