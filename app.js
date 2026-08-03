@@ -274,7 +274,6 @@
     var visual = el("div", "hero-visual");
     var collage = el("div", "hero-collage");
 
-    // トップ写真をマスクなしの議場写真に変更
     var list = [
       photos[5],
       photos[0],
@@ -395,6 +394,231 @@
     root.appendChild(layout);
 
     rail(root, D.articleImages || photos, "活動写真");
+  }
+
+  function archiveDateParts(value) {
+    var raw = text(value).trim();
+    var match = raw.match(
+      /(\d{4})[\/\-.年](\d{1,2})(?:[\/\-.月](\d{1,2})日?)?/
+    );
+
+    if (match) {
+      return {
+        year: Number(match[1]),
+        month: Number(match[2]),
+        day: Number(match[3] || 1)
+      };
+    }
+
+    var date = new Date(raw);
+
+    if (!isNaN(date.getTime())) {
+      return {
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        day: date.getDate()
+      };
+    }
+
+    return {
+      year: 0,
+      month: 0,
+      day: 0
+    };
+  }
+
+  function archiveMonthKey(value) {
+    var parts = archiveDateParts(value);
+
+    if (!parts.year || !parts.month) return "unknown";
+
+    return parts.year + "-" + String(parts.month).padStart(2, "0");
+  }
+
+  function archiveMonthLabel(key) {
+    if (key === "unknown") return "日付未設定";
+
+    var values = key.split("-");
+    return values[0] + "年" + Number(values[1]) + "月";
+  }
+
+  function archiveDateLabel(value) {
+    var parts = archiveDateParts(value);
+
+    if (!parts.year || !parts.month) {
+      return text(value) || "日付未設定";
+    }
+
+    return parts.year + "年" + parts.month + "月" + parts.day + "日";
+  }
+
+  function archiveDateNumber(value) {
+    var parts = archiveDateParts(value);
+
+    if (!parts.year || !parts.month) return 0;
+
+    return new Date(
+      parts.year,
+      parts.month - 1,
+      parts.day
+    ).getTime();
+  }
+
+  function renderArchive() {
+    var articles = (D.articles || []).filter(Boolean);
+
+    var root = section(
+      "archive",
+      "ARCHIVE",
+      "月別アーカイブ",
+      "過去の活動報告"
+    );
+
+    if (!articles.length) {
+      addText(
+        root,
+        "p",
+        "archive-empty",
+        "公開中の記事はまだありません。"
+      );
+      return;
+    }
+
+    var groups = {};
+    var keys = [];
+
+    articles.forEach(function (article) {
+      var key = archiveMonthKey(article.date);
+
+      if (!groups[key]) {
+        groups[key] = [];
+        keys.push(key);
+      }
+
+      groups[key].push(article);
+    });
+
+    keys.sort(function (a, b) {
+      if (a === "unknown") return 1;
+      if (b === "unknown") return -1;
+      return b.localeCompare(a);
+    });
+
+    keys.forEach(function (key) {
+      groups[key].sort(function (a, b) {
+        return archiveDateNumber(b.date) - archiveDateNumber(a.date);
+      });
+    });
+
+    addText(
+      root,
+      "p",
+      "archive-note",
+      "月を選ぶと、その月の活動報告をまとめてご覧いただけます。"
+    );
+
+    var tabs = el("div", "archive-months");
+    var groupsRoot = el("div", "archive-groups");
+
+    function activate(key) {
+      Array.from(tabs.querySelectorAll("button")).forEach(function (button) {
+        button.classList.toggle(
+          "active",
+          button.getAttribute("data-month") === key
+        );
+      });
+
+      Array.from(groupsRoot.querySelectorAll(".archive-group")).forEach(
+        function (group) {
+          group.hidden = key !== "all" && group.dataset.month !== key;
+        }
+      );
+    }
+
+    function addTab(key, label) {
+      var button = document.createElement("button");
+
+      button.type = "button";
+      button.className = "archive-month-button";
+      button.setAttribute("data-month", key);
+      button.textContent = label;
+      button.onclick = function () {
+        activate(key);
+      };
+
+      tabs.appendChild(button);
+    }
+
+    addTab("all", "すべて");
+
+    keys.forEach(function (key) {
+      addTab(key, archiveMonthLabel(key));
+    });
+
+    keys.forEach(function (key, groupIndex) {
+      var group = el("section", "archive-group");
+      group.dataset.month = key;
+
+      addText(
+        group,
+        "h3",
+        "archive-group-title",
+        archiveMonthLabel(key)
+      );
+
+      var list = el("div", "archive-list");
+
+      groups[key].forEach(function (article, articleIndex) {
+        var card = document.createElement("details");
+        var summary = document.createElement("summary");
+        var content = el("div", "archive-card-content");
+
+        card.className = "archive-card";
+        card.open = groupIndex === 0 && articleIndex === 0;
+
+        addText(
+          summary,
+          "span",
+          "archive-card-date",
+          archiveDateLabel(article.date)
+        );
+
+        addText(
+          summary,
+          "strong",
+          "archive-card-title",
+          article.title || "無題の活動報告"
+        );
+
+        addBody(content, article.body);
+        addYoutube(content, article.youtube || "");
+
+        if ((article.images || []).filter(Boolean).length) {
+          rail(content, article.images, "活動写真");
+        }
+
+        if (validUrl(article.externalUrl)) {
+          addLink(
+            content,
+            "関連リンクを開く",
+            article.externalUrl,
+            "button"
+          );
+        }
+
+        card.appendChild(summary);
+        card.appendChild(content);
+        list.appendChild(card);
+      });
+
+      group.appendChild(list);
+      groupsRoot.appendChild(group);
+    });
+
+    root.appendChild(tabs);
+    root.appendChild(groupsRoot);
+
+    activate(keys[0]);
   }
 
   function renderProfile() {
@@ -572,19 +796,22 @@
     }
 
     return {
+      id: item.id || item.newsId || "",
       date: item.date,
       title: item.title,
       body: item.body,
       images: item.images || [],
-      youtube: item.videoUrl || item.youtube || ""
+      youtube: item.videoUrl || item.youtube || "",
+      externalUrl: item.externalUrl || "",
+      status: item.status || ""
     };
   }
 
-  function loadRemoteArticle() {
+  function loadRemoteArticles() {
     if (!GAS_URL) {
       return Promise.resolve({
         ok: false,
-        article: null
+        articles: []
       });
     }
 
@@ -592,7 +819,7 @@
       GAS_URL +
       "?mode=publicNews&siteKey=" +
       encodeURIComponent(SITE_KEY) +
-      "&limit=1&_=" +
+      "&limit=100&_=" +
       Date.now();
 
     return fetch(url, {
@@ -602,67 +829,4 @@
         return response.json();
       })
       .then(function (data) {
-        var list =
-          data && Array.isArray(data.news)
-            ? data.news
-            : [];
-
-        return {
-          ok: true,
-          article: list.length
-            ? normalizeNews(list[0])
-            : null
-        };
-      })
-      .catch(function () {
-        return {
-          ok: false,
-          article: null
-        };
-      });
-  }
-
-  function render() {
-    if (!app) return;
-
-    app.innerHTML = "";
-
-    var title = document.getElementById("siteTitle");
-
-    if (title) {
-      title.textContent =
-        (D.politician && D.politician.name) || "鈴木正人";
-    }
-
-    renderHero();
-    renderActivity();
-    renderProfile();
-    renderPolicy();
-    renderConsultation();
-    renderSocial();
-  }
-
-  var headerShare = document.getElementById("headerShare");
-
-  if (headerShare) {
-    headerShare.textContent = "このページをシェア";
-    share(headerShare);
-  }
-
-  render();
-
-  loadRemoteArticle().then(function (result) {
-    if (!result || !result.ok) return;
-
-    D.article = result.article;
-
-    if (
-      result.article &&
-      result.article.images.length
-    ) {
-      D.articleImages = result.article.images;
-    }
-
-    render();
-  });
-})();
+        var
