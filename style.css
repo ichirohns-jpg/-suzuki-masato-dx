@@ -633,7 +633,7 @@ ul { margin: 0; padding: 0; }
   border-radius: 50%;
   background: var(--gold);
   color: var(--green-950);
-  content: "â";
+  content: "\2713";
   font-size: 13px;
   font-weight: 950;
 }
@@ -926,7 +926,7 @@ ul { margin: 0; padding: 0; }
   }
 }
 
-/* æå¥ã¢ã¼ã«ã¤ã */
+/* Monthly archive */
 
 .archive-note {
   margin-bottom: 15px;
@@ -1016,7 +1016,7 @@ ul { margin: 0; padding: 0; }
 }
 
 .archive-card[open] summary::after {
-  content: "â";
+  content: "\2212";
 }
 
 .archive-card-date {
