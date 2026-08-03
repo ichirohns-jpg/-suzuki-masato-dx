@@ -20,29 +20,41 @@
   <main class="main">
     <section class="card">
       <h2>管理者ログイン</h2>
+
       <div class="field">
         <label class="label" for="password">管理パスワード</label>
         <input id="password" type="password" autocomplete="current-password">
       </div>
+
       <div class="actions">
-        <button id="load" class="button" type="button">ログインして記事一覧を読み込む</button>
+        <button id="load" class="button" type="button">
+          ログインして記事一覧を読み込む
+        </button>
       </div>
+
       <div id="status" class="status"></div>
     </section>
 
     <div id="operationArea" class="hidden">
       <section class="card">
         <h2>保存済みの記事</h2>
+
         <div class="actions">
-          <button id="new" class="button secondary" type="button">新しい記事を書く</button>
+          <button id="new" class="button secondary" type="button">
+            新しい記事を書く
+          </button>
         </div>
+
         <div id="list" class="article-list">
-          <p class="help">「記事一覧を読み込む」を押してください。</p>
+          <p class="help">
+            「記事一覧を読み込む」を押してください。
+          </p>
         </div>
       </section>
 
       <form id="editor" class="card">
         <h2 id="editorTitle">新しい活動報告</h2>
+
         <input id="newsId" type="hidden">
 
         <div class="grid">
@@ -62,437 +74,601 @@
         </div>
 
         <div class="field">
-          <label class="label" for="title">活動報告タイトル</label>
+          <label class="label" for="title">
+            活動報告タイトル
+          </label>
           <input id="title" required>
         </div>
 
         <div class="field">
-          <label class="label" for="body">活動報告本文</label>
+          <label class="label" for="body">
+            活動報告本文
+          </label>
           <textarea id="body" required></textarea>
         </div>
 
         <div class="grid">
           <div class="field">
-            <label class="label" for="video">YouTube動画URL（共有からコピーして貼り付け）</label>
+            <label class="label" for="video">
+              YouTube動画URL（共有からコピーして貼り付け）
+            </label>
+
             <div class="paste-row">
-              <input id="video" type="text" inputmode="url" autocomplete="url" placeholder="YouTubeの共有→リンクをコピー">
-              <button id="pasteVideo" class="paste-button" type="button">コピーを貼る</button>
+              <input
+                id="video"
+                type="text"
+                inputmode="url"
+                autocomplete="url"
+                placeholder="YouTubeの共有→リンクをコピー"
+              >
+
+              <button
+                id="pasteVideo"
+                class="paste-button"
+                type="button"
+              >
+                コピーを貼る
+              </button>
             </div>
-            <p class="help">YouTubeアプリの「共有」→「リンクをコピー」→この欄へ貼り付けます。保存後、公開ページ内で再生します。</p>
+
+            <p class="help">
+              YouTubeアプリの「共有」→「リンクをコピー」→この欄へ貼り付けます。保存後、公開ページ内で再生します。
+            </p>
+
             <div id="videoPreview" class="video-preview"></div>
           </div>
 
           <div class="field">
-            <label class="label" for="external">関連リンク</label>
+            <label class="label" for="external">
+              関連リンク
+            </label>
             <input id="external" type="url" placeholder="任意">
           </div>
         </div>
 
         <div class="field">
-          <label class="label" for="images">活動報告写真（最大5枚）</label>
+          <label class="label" for="images">
+            活動報告写真（最大5枚）
+          </label>
+
           <input id="images" type="file" accept="image/*" multiple>
-          <p class="help">現在の保存側に合わせて最大5枚です。</p>
+
+          <p class="help">
+            現在の保存側に合わせて最大5枚です。
+          </p>
+
           <div id="preview" class="preview"></div>
         </div>
 
         <div class="actions">
-          <button class="button gold" type="submit">この記事を保存する</button>
-          <button id="cancel" class="button secondary" type="button">入力をクリア</button>
+          <button class="button gold" type="submit">
+            この記事を保存する
+          </button>
+
+          <button id="cancel" class="button secondary" type="button">
+            入力をクリア
+          </button>
         </div>
       </form>
     </div>
 
-    <a class="site-link" href="https://ichirohns-jpg.github.io/-suzuki-masato-dx/" target="_blank" rel="noopener">公開ページを開く</a>
+    <a
+      class="site-link"
+      href="https://ichirohns-jpg.github.io/-suzuki-masato-dx/"
+      target="_blank"
+      rel="noopener"
+    >
+      公開ページを開く
+    </a>
   </main>
 
-  <footer class="footer">鈴木正人｜活動報告更新</footer>
+  <footer class="footer">
+    鈴木正人｜活動報告更新
+  </footer>
 
   <script>
     "use strict";
 
-    var GAS_URL="https://script.google.com/macros/s/AKfycbyC5VN3w3hDcJB13eK9YL9x5ulg7T-P3h0hpo5eLm7i6js4uOJ731pP0QMCAigCxGTyBQ/exec";
-    var SITE_KEY="suzuki-masato-dx";
-    var MAX_IMAGES=5;
-    var currentImages=[];
-    var newImages=[];
-    var $=function(id){return document.getElementById(id)};
+    var GAS_URL =
+      "https://script.google.com/macros/s/AKfycbyC5VN3w3hDcJB13eK9YL9x5ulg7T-P3h0hpo5eLm7i6js4uOJ731pP0QMCAigCxGTyBQ/exec";
 
-    function status(message,kind){
-      $("status").textContent=message;
-      $("status").className="status show "+kind
+    var SITE_KEY = "suzuki-masato-dx";
+    var MAX_IMAGES = 5;
+    var currentImages = [];
+    var newImages = [];
+
+    var $ = function (id) {
+      return document.getElementById(id);
+    };
+
+    function status(message, kind) {
+      $("status").textContent = message;
+      $("status").className = "status show " + kind;
     }
 
-    function password(){
-      return $("password").value.trim()
+    function password() {
+      return $("password").value.trim();
     }
 
-    function normalizeYoutubeUrl(value){
-      return String(value||"").trim().replace(/\s+/g,"")
+    function normalizeYoutubeUrl(value) {
+      return String(value || "")
+        .trim()
+        .replace(/\s+/g, "");
     }
 
-    function itemYoutubeUrl(item){
-      if(!item)return"";
+    function itemYoutubeUrl(item) {
+      if (!item) return "";
 
       return normalizeYoutubeUrl(
-        item.videoUrl||
-        item.videoURL||
-        item.video_url||
-        item.youtubeUrl||
-        item.youtube_url||
-        item.youtubeURL||
-        item.youtube||
-        item.video||
-        item["動画URL"]||
-        item["YouTube URL"]||
-        item["YouTube"]||
+        item.videoUrl ||
+        item.videoURL ||
+        item.video_url ||
+        item.youtubeUrl ||
+        item.youtube_url ||
+        item.youtubeURL ||
+        item.youtube ||
+        item.video ||
+        item["動画URL"] ||
+        item["YouTube URL"] ||
+        item["YouTube"] ||
         ""
-      )
+      );
     }
 
-    function youtubeId(url){
-      var match=normalizeYoutubeUrl(url).match(
+    function youtubeId(url) {
+      var match = normalizeYoutubeUrl(url).match(
         /(?:[?&]v=|youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|shorts\/|live\/|embed\/|v\/))([A-Za-z0-9_-]{6,})/i
       );
 
-      return match?match[1].split(/[?&#/])[0]:""
+      return match ? match[1].split(/[?&#/])[0] : "";
     }
 
-    function showVideoPreview(){
-      var box=$("videoPreview");
-      var id=youtubeId($("video").value);
+    function showVideoPreview() {
+      var box = $("videoPreview");
+      var id = youtubeId($("video").value);
 
-      box.innerHTML="";
+      box.innerHTML = "";
 
-      if(!id){
+      if (!id) {
         box.classList.remove("open");
-        return
+        return;
       }
 
-      var frame=document.createElement("iframe");
-      frame.src="https://www.youtube-nocookie.com/embed/"+id+"?playsinline=1&rel=0";
-      frame.title="YouTube動画プレビュー";
-      frame.loading="lazy";
-      frame.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-      frame.allowFullscreen=true;
+      var frame = document.createElement("iframe");
+
+      frame.src =
+        "https://www.youtube-nocookie.com/embed/" +
+        id +
+        "?playsinline=1&rel=0";
+
+      frame.title = "YouTube動画プレビュー";
+      frame.loading = "lazy";
+      frame.allow =
+        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+      frame.allowFullscreen = true;
 
       box.appendChild(frame);
-      box.classList.add("open")
+      box.classList.add("open");
     }
 
-    function api(data){
-      return fetch(GAS_URL,{
-        method:"POST",
-        headers:{"Content-Type":"text/plain;charset=utf-8"},
-        body:JSON.stringify(data)
-      }).then(function(r){
-        return r.text()
-      }).then(function(text){
-        try{
-          return JSON.parse(text)
-        }catch(error){
-          throw new Error("GASから正しい返答を受け取れませんでした。")
-        }
+    function api(data) {
+      return fetch(GAS_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "text/plain;charset=utf-8"
+        },
+        body: JSON.stringify(data)
       })
+        .then(function (response) {
+          return response.text();
+        })
+        .then(function (responseText) {
+          try {
+            return JSON.parse(responseText);
+          } catch (error) {
+            throw new Error(
+              "GASから正しい返答を受け取れませんでした。"
+            );
+          }
+        });
     }
 
-    function toDate(value){
-      var d=new Date(value);
-      if(!value)return"";
-      if(/^\d{4}-\d{2}-\d{2}$/.test(value))return value;
-      return isNaN(d.getTime())?value:d.toISOString().slice(0,10)
+    function toDate(value) {
+      var d = new Date(value);
+
+      if (!value) return "";
+
+      if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+        return value;
+      }
+
+      return isNaN(d.getTime())
+        ? value
+        : d.toISOString().slice(0, 10);
     }
 
-    function clearEditor(){
-      $("newsId").value="";
-      $("date").value=new Date().toISOString().slice(0,10);
-      $("title").value="";
-      $("body").value="";
-      $("video").value="";
-      $("external").value="";
-      $("state").value="公開";
-      currentImages=[];
-      newImages=[];
-      $("preview").innerHTML="";
-      $("editorTitle").textContent="新しい活動報告";
-      $("images").value="";
-      showVideoPreview()
+    function clearEditor() {
+      $("newsId").value = "";
+      $("date").value = new Date().toISOString().slice(0, 10);
+      $("title").value = "";
+      $("body").value = "";
+      $("video").value = "";
+      $("external").value = "";
+      $("state").value = "公開";
+
+      currentImages = [];
+      newImages = [];
+
+      $("preview").innerHTML = "";
+      $("editorTitle").textContent = "新しい活動報告";
+      $("images").value = "";
+
+      showVideoPreview();
     }
 
-    function showPreview(){
-      var box=$("preview");
-      box.innerHTML="";
+    function showPreview() {
+      var box = $("preview");
 
-      currentImages.concat(
-        newImages.map(function(x){return x.data})
-      ).slice(0,MAX_IMAGES).forEach(function(src,i){
-        var f=document.createElement("figure");
-        var im=document.createElement("img");
-        var cap=document.createElement("figcaption");
+      box.innerHTML = "";
 
-        im.src=src;
-        im.alt="活動写真"+(i+1);
-        cap.textContent="写真"+(i+1);
+      currentImages
+        .concat(
+          newImages.map(function (item) {
+            return item.data;
+          })
+        )
+        .slice(0, MAX_IMAGES)
+        .forEach(function (src, index) {
+          var figure = document.createElement("figure");
+          var image = document.createElement("img");
+          var caption = document.createElement("figcaption");
 
-        f.appendChild(im);
-        f.appendChild(cap);
-        box.appendChild(f)
-      })
+          image.src = src;
+          image.alt = "活動写真" + (index + 1);
+          caption.textContent = "写真" + (index + 1);
+
+          figure.appendChild(image);
+          figure.appendChild(caption);
+          box.appendChild(figure);
+        });
     }
 
-    function edit(item){
-      $("newsId").value=item.id||"";
-      $("date").value=toDate(item.date);
-      $("title").value=item.title||"";
-      $("body").value=item.body||"";
-      $("video").value=itemYoutubeUrl(item);
-      $("external").value=item.externalUrl||"";
-      $("state").value=item.status||"公開";
-      currentImages=(item.images||[]).filter(Boolean).slice(0,MAX_IMAGES);
-      newImages=[];
-      $("images").value="";
-      $("editorTitle").textContent="活動報告を編集";
+    function edit(item) {
+      $("newsId").value = item.id || "";
+      $("date").value = toDate(item.date);
+      $("title").value = item.title || "";
+      $("body").value = item.body || "";
+      $("video").value = itemYoutubeUrl(item);
+      $("external").value = item.externalUrl || "";
+      $("state").value = item.status || "公開";
+
+      currentImages = (item.images || [])
+        .filter(Boolean)
+        .slice(0, MAX_IMAGES);
+
+      newImages = [];
+      $("images").value = "";
+      $("editorTitle").textContent = "活動報告を編集";
+
       showPreview();
+      showVideoPreview();
 
       window.scrollTo({
-        top:document.getElementById("editor").offsetTop-80,
-        behavior:"smooth"
-      })
+        top: document.getElementById("editor").offsetTop - 80,
+        behavior: "smooth"
+      });
     }
 
-    function render(items){
-      var box=$("list");
-      box.innerHTML="";
+    function render(items) {
+      var box = $("list");
 
-      if(!items.length){
-        box.innerHTML='<p class="help">記事はまだありません。</p>';
-        return
+      box.innerHTML = "";
+
+      if (!items.length) {
+        box.innerHTML =
+          '<p class="help">記事はまだありません。</p>';
+        return;
       }
 
-      items.filter(function(x){
-        return !x.siteKey||x.siteKey==="suzuki-masato-dx"
-      }).forEach(function(item){
-        var row=document.createElement("article");
-        var title=document.createElement("strong");
-        var date=document.createElement("small");
-        var body=document.createElement("p");
-        var actions=document.createElement("div");
-        var editButton=document.createElement("button");
-        var deleteButton=document.createElement("button");
+      items
+        .filter(function (item) {
+          return (
+            !item.siteKey ||
+            item.siteKey === "suzuki-masato-dx"
+          );
+        })
+        .forEach(function (item) {
+          var row = document.createElement("article");
+          var title = document.createElement("strong");
+          var date = document.createElement("small");
+          var body = document.createElement("p");
+          var actions = document.createElement("div");
+          var editButton = document.createElement("button");
+          var deleteButton = document.createElement("button");
 
-        row.className="article-item";
-        title.textContent=item.title||"無題";
-        date.textContent=(item.date||"")+"｜"+(item.status||"");
-        body.textContent=item.body||"";
-        actions.className="actions";
+          row.className = "article-item";
+          title.textContent = item.title || "無題";
+          date.textContent =
+            (item.date || "") + "｜" + (item.status || "");
+          body.textContent = item.body || "";
+          actions.className = "actions";
 
-        editButton.className="button secondary";
-        editButton.type="button";
-        editButton.textContent="編集";
-        editButton.onclick=function(){
-          edit(item)
-        };
-
-        deleteButton.className="button danger";
-        deleteButton.type="button";
-        deleteButton.textContent="削除";
-        deleteButton.onclick=function(){
-          deleteArticle(item)
-        };
-
-        actions.appendChild(editButton);
-        actions.appendChild(deleteButton);
-        row.appendChild(title);
-        row.appendChild(date);
-        row.appendChild(body);
-        row.appendChild(actions);
-        box.appendChild(row)
-      })
-    }
-
-    function deleteArticle(item){
-      if(!item||!item.id)return;
-
-      if(!window.confirm(
-        "この記事を削除しますか？\n削除すると元に戻せません。"
-      ))return;
-
-      status("削除しています。","loading");
-
-      api({
-        mode:"adminNewsDelete",
-        adminPassword:password(),
-        siteKey:"suzuki-masato-dx",
-        newsId:item.id
-      }).then(function(data){
-        if(!data.success){
-          throw new Error(data.message||"削除に失敗しました。")
-        }
-
-        clearEditor();
-        status("記事を削除しました。","ok");
-        loadList()
-      }).catch(function(error){
-        status(error.message,"error")
-      })
-    }
-
-    function loadList(){
-      if(!password()){
-        status("管理パスワードを入力してください。","error");
-        return
-      }
-
-      status("記事一覧を読み込んでいます。","loading");
-
-      api({
-        mode:"adminNewsList",
-        adminPassword:password(),
-        siteKey:"suzuki-masato-dx"
-      }).then(function(data){
-        if(!data.success){
-          throw new Error(data.message||"読み込みに失敗しました。")
-        }
-
-        render(data.news||[]);
-        $("operationArea").classList.remove("hidden");
-        $("password").readOnly=true;
-        $("load").textContent="認証済み";
-        status("認証しました。更新画面を開きました。","ok")
-      }).catch(function(error){
-        status(error.message,"error")
-      })
-    }
-
-    function readImage(file){
-      return new Promise(function(resolve,reject){
-        var reader=new FileReader();
-
-        reader.onload=function(){
-          var image=new Image();
-
-          image.onload=function(){
-            var max=1500;
-            var scale=Math.min(
-              1,
-              max/Math.max(image.naturalWidth,image.naturalHeight)
-            );
-            var canvas=document.createElement("canvas");
-
-            canvas.width=Math.max(1,Math.round(image.naturalWidth*scale));
-            canvas.height=Math.max(1,Math.round(image.naturalHeight*scale));
-
-            canvas.getContext("2d").drawImage(
-              image,
-              0,
-              0,
-              canvas.width,
-              canvas.height
-            );
-
-            resolve(canvas.toDataURL("image/jpeg",.82))
+          editButton.className = "button secondary";
+          editButton.type = "button";
+          editButton.textContent = "編集";
+          editButton.onclick = function () {
+            edit(item);
           };
 
-          image.onerror=reject;
-          image.src=reader.result
-        };
+          deleteButton.className = "button danger";
+          deleteButton.type = "button";
+          deleteButton.textContent = "削除";
+          deleteButton.onclick = function () {
+            deleteArticle(item);
+          };
 
-        reader.onerror=reject;
-        reader.readAsDataURL(file)
-      })
+          actions.appendChild(editButton);
+          actions.appendChild(deleteButton);
+
+          row.appendChild(title);
+          row.appendChild(date);
+          row.appendChild(body);
+          row.appendChild(actions);
+
+          box.appendChild(row);
+        });
     }
 
-    $("images").onchange=function(){
-      var files=Array.from($("images").files||[])
-        .slice(0,Math.max(0,MAX_IMAGES-currentImages.length));
+    function deleteArticle(item) {
+      if (!item || !item.id) return;
 
-      newImages=[];
+      if (
+        !window.confirm(
+          "この記事を削除しますか？\n削除すると元に戻せません。"
+        )
+      ) {
+        return;
+      }
+
+      status("削除しています。", "loading");
+
+      api({
+        mode: "adminNewsDelete",
+        adminPassword: password(),
+        siteKey: SITE_KEY,
+        newsId: item.id
+      })
+        .then(function (data) {
+          if (!data.success) {
+            throw new Error(
+              data.message || "削除に失敗しました。"
+            );
+          }
+
+          clearEditor();
+          status("記事を削除しました。", "ok");
+          loadList();
+        })
+        .catch(function (error) {
+          status(error.message, "error");
+        });
+    }
+
+    function loadList() {
+      if (!password()) {
+        status("管理パスワードを入力してください。", "error");
+        return;
+      }
+
+      status("記事一覧を読み込んでいます。", "loading");
+
+      api({
+        mode: "adminNewsList",
+        adminPassword: password(),
+        siteKey: SITE_KEY
+      })
+        .then(function (data) {
+          if (!data.success) {
+            throw new Error(
+              data.message || "読み込みに失敗しました。"
+            );
+          }
+
+          render(data.news || []);
+
+          $("operationArea").classList.remove("hidden");
+          $("password").readOnly = true;
+          $("load").textContent = "認証済み";
+
+          status(
+            "認証しました。更新画面を開きました。",
+            "ok"
+          );
+        })
+        .catch(function (error) {
+          status(error.message, "error");
+        });
+    }
+
+    function readImage(file) {
+      return new Promise(function (resolve, reject) {
+        var reader = new FileReader();
+
+        reader.onload = function () {
+          var image = new Image();
+
+          image.onload = function () {
+            var max = 1500;
+            var scale = Math.min(
+              1,
+              max /
+                Math.max(
+                  image.naturalWidth,
+                  image.naturalHeight
+                )
+            );
+
+            var canvas = document.createElement("canvas");
+
+            canvas.width = Math.max(
+              1,
+              Math.round(image.naturalWidth * scale)
+            );
+
+            canvas.height = Math.max(
+              1,
+              Math.round(image.naturalHeight * scale)
+            );
+
+            canvas
+              .getContext("2d")
+              .drawImage(
+                image,
+                0,
+                0,
+                canvas.width,
+                canvas.height
+              );
+
+            resolve(
+              canvas.toDataURL("image/jpeg", 0.82)
+            );
+          };
+
+          image.onerror = reject;
+          image.src = reader.result;
+        };
+
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    $("images").onchange = function () {
+      var files = Array.from($("images").files || [])
+        .slice(
+          0,
+          Math.max(
+            0,
+            MAX_IMAGES - currentImages.length
+          )
+        );
+
+      newImages = [];
 
       Promise.all(
-        files.map(function(file){
-          return readImage(file)
+        files.map(function (file) {
+          return readImage(file);
         })
-      ).then(function(dataList){
-        newImages=dataList.map(function(data){
-          return{data:data}
+      ).then(function (dataList) {
+        newImages = dataList.map(function (data) {
+          return {
+            data: data
+          };
         });
-        showPreview()
-      })
+
+        showPreview();
+      });
     };
 
-    $("video").oninput=showVideoPreview;
+    $("video").oninput = showVideoPreview;
 
-    $("pasteVideo").onclick=function(){
-      if(!navigator.clipboard||!navigator.clipboard.readText){
+    $("pasteVideo").onclick = function () {
+      if (
+        !navigator.clipboard ||
+        !navigator.clipboard.readText
+      ) {
         $("video").focus();
-        status("このiPhoneでは自動貼り付けが使えません。入力欄を長押しして「ペースト」を選んでください。","ok");
-        return
+
+        status(
+          "入力欄を長押しして「ペースト」を選んでください。",
+          "ok"
+        );
+
+        return;
       }
 
-      navigator.clipboard.readText().then(function(value){
-        $("video").value=normalizeYoutubeUrl(value);
-        showVideoPreview();
-        status("YouTubeリンクを貼り付けました。","ok")
-      }).catch(function(){
-        $("video").focus();
-        status("入力欄を長押しして「ペースト」を選んでください。","ok")
-      })
+      navigator.clipboard
+        .readText()
+        .then(function (value) {
+          $("video").value = normalizeYoutubeUrl(value);
+          showVideoPreview();
+          status("YouTubeリンクを貼り付けました。", "ok");
+        })
+        .catch(function () {
+          $("video").focus();
+
+          status(
+            "入力欄を長押しして「ペースト」を選んでください。",
+            "ok"
+          );
+        });
     };
 
-    $("load").onclick=loadList;
-    $("new").onclick=clearEditor;
-    $("cancel").onclick=clearEditor;
+    $("load").onclick = loadList;
+    $("new").onclick = clearEditor;
+    $("cancel").onclick = clearEditor;
 
-    $("editor").onsubmit=function(event){
+    $("editor").onsubmit = function (event) {
       event.preventDefault();
 
-      if(!password()){
-        status("管理パスワードを入力してください。","error");
-        return
+      if (!password()) {
+        status("管理パスワードを入力してください。", "error");
+        return;
       }
 
-      status("保存しています。","loading");
+      status("保存しています。", "loading");
 
-      var youtube=normalizeYoutubeUrl($("video").value);
+      var youtube = normalizeYoutubeUrl(
+        $("video").value
+      );
 
-      var payload={
-        mode:"adminNewsSave",
-        adminPassword:password(),
-        siteKey:"suzuki-masato-dx",
-        newsId:$("newsId").value,
-        date:$("date").value,
-        title:$("title").value.trim(),
-        body:$("body").value.trim(),
-        videoUrl:youtube,
-        videoURL:youtube,
-        video_url:youtube,
-        youtubeUrl:youtube,
-        youtube_url:youtube,
-        youtubeURL:youtube,
-        youtube:youtube,
-        video:youtube,
-        externalUrl:$("external").value.trim(),
-        status:$("state").value,
-        existingImages:currentImages,
-        newImages:newImages.map(function(x,i){
-          return{
-            data:x.data,
-            name:"activity-"+(i+1)+".jpg",
-            mimeType:"image/jpeg"
-          }
+      var payload = {
+        mode: "adminNewsSave",
+        adminPassword: password(),
+        siteKey: SITE_KEY,
+        newsId: $("newsId").value,
+        date: $("date").value,
+        title: $("title").value.trim(),
+        body: $("body").value.trim(),
+
+        videoUrl: youtube,
+        videoURL: youtube,
+        video_url: youtube,
+        youtubeUrl: youtube,
+        youtube_url: youtube,
+        youtubeURL: youtube,
+        youtube: youtube,
+        video: youtube,
+
+        externalUrl: $("external").value.trim(),
+        status: $("state").value,
+        existingImages: currentImages,
+
+        newImages: newImages.map(function (item, index) {
+          return {
+            data: item.data,
+            name: "activity-" + (index + 1) + ".jpg",
+            mimeType: "image/jpeg"
+          };
         })
       };
 
-      api(payload).then(function(data){
-        if(!data.success){
-          throw new Error(data.message||"保存に失敗しました。")
-        }
+      api(payload)
+        .then(function (data) {
+          if (!data.success) {
+            throw new Error(
+              data.message || "保存に失敗しました。"
+            );
+          }
 
-        clearEditor();
-        status("保存しました。","ok");
-        loadList()
-      }).catch(function(error){
-        status(error.message,"error")
-      })
+          clearEditor();
+          status("保存しました。", "ok");
+          loadList();
+        })
+        .catch(function (error) {
+          status(error.message, "error");
+        });
     };
 
     clearEditor();
