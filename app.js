@@ -29,6 +29,10 @@
     }).filter(Boolean);
   }
 
+  function normalizeYoutubeUrl(value) {
+    return text(value).trim().replace(/\s+/g, "");
+  }
+
   function normalizeImages(item) {
     if (!item) return [];
 
@@ -57,15 +61,21 @@
   function articleVideo(item) {
     if (!item) return "";
 
-    return text(
+    var value =
       item.videoUrl ||
+      item.videoURL ||
+      item.video_url ||
       item.youtubeUrl ||
       item.youtube_url ||
       item.youtubeURL ||
       item.youtube ||
       item.video ||
-      ""
-    ).trim();
+      item["動画URL"] ||
+      item["YouTube URL"] ||
+      item["YouTube"] ||
+      "";
+
+    return normalizeYoutubeUrl(value);
   }
 
   function el(tag, className) {
@@ -180,12 +190,12 @@
 
   function isYoutubeUrl(url) {
     return /(?:youtube\.com|youtube-nocookie\.com|youtu\.be)/i.test(
-      text(url)
+      normalizeYoutubeUrl(url)
     );
   }
 
   function youtubeId(url) {
-    var match = text(url).match(
+    var match = normalizeYoutubeUrl(url).match(
       /(?:[?&]v=|youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|shorts\/|live\/|embed\/|v\/))([A-Za-z0-9_-]{6,})/i
     );
 
@@ -403,13 +413,14 @@
 
   function articleSocialLinks(parent) {
     var urls = (D.sns || []).filter(Boolean);
+    var commonYoutube = D.youtube || D.youtubeUrl || "";
 
     if (
-      D.youtube &&
-      urls.indexOf(D.youtube) < 0 &&
-      !(isYoutubeUrl(D.youtube) && youtubeId(D.youtube))
+      commonYoutube &&
+      urls.indexOf(commonYoutube) < 0 &&
+      !(isYoutubeUrl(commonYoutube) && youtubeId(commonYoutube))
     ) {
-      urls.push(D.youtube);
+      urls.push(commonYoutube);
     }
 
     if (!urls.length) return;
@@ -522,26 +533,9 @@
 
     var actions = el("div", "hero-actions");
 
-    addLink(
-      actions,
-      "活動報告を見る",
-      "#activity",
-      "button gold"
-    );
-
-    addLink(
-      actions,
-      "プロフィール",
-      "#profile",
-      "button secondary"
-    );
-
-    addLink(
-      actions,
-      "公式サイト",
-      D.officialSite,
-      "button"
-    );
+    addLink(actions, "活動報告を見る", "#activity", "button gold");
+    addLink(actions, "プロフィール", "#profile", "button secondary");
+    addLink(actions, "公式サイト", D.officialSite, "button");
 
     var shareButton = el("button", "share-button");
 
@@ -593,12 +587,7 @@
       collage.appendChild(mini);
     }
 
-    addText(
-      collage,
-      "p",
-      "collage-note",
-      "志木市から県政へ"
-    );
+    addText(collage, "p", "collage-note", "志木市から県政へ");
 
     visual.appendChild(collage);
 
@@ -610,12 +599,7 @@
       "鈴木正人"
     );
 
-    addText(
-      portrait,
-      "span",
-      "portrait-label",
-      "鈴木正人"
-    );
+    addText(portrait, "span", "portrait-label", "鈴木正人");
 
     visual.appendChild(portrait);
 
@@ -658,23 +642,20 @@
 
     var content = el("div", "activity-content activity-content-full");
 
-    addText(
-      content,
-      "div",
-      "date-badge",
-      article.date
-    );
-
-    addText(
-      content,
-      "h3",
-      "content-title",
-      article.title
-    );
-
+    addText(content, "div", "date-badge", article.date);
+    addText(content, "h3", "content-title", article.title);
     addBody(content, article.body);
 
-    if (validUrl(article.externalUrl)) {
+    var activityYoutube =
+      article.youtube ||
+      D.youtube ||
+      D.youtubeUrl ||
+      (isYoutubeUrl(article.externalUrl) ? article.externalUrl : "");
+
+    if (
+      validUrl(article.externalUrl) &&
+      !(isYoutubeUrl(article.externalUrl) && youtubeId(article.externalUrl))
+    ) {
       var actions = el("div", "button-row article-actions");
 
       addArticleLink(
@@ -689,7 +670,7 @@
       }
     }
 
-    addYoutube(content, article.youtube || D.youtube);
+    addYoutube(content, activityYoutube);
     articleSocialLinks(content);
 
     root.appendChild(content);
@@ -748,12 +729,7 @@
 
     var values = key.split("-");
 
-    return (
-      values[0] +
-      "年" +
-      Number(values[1]) +
-      "月"
-    );
+    return values[0] + "年" + Number(values[1]) + "月";
   }
 
   function archiveDateLabel(value) {
@@ -831,10 +807,7 @@
 
     keys.forEach(function (key) {
       groups[key].sort(function (a, b) {
-        return (
-          archiveDateNumber(b.date) -
-          archiveDateNumber(a.date)
-        );
+        return archiveDateNumber(b.date) - archiveDateNumber(a.date);
       });
     });
 
@@ -849,9 +822,7 @@
     var groupsRoot = el("div", "archive-groups");
 
     function activate(key) {
-      Array.from(
-        tabs.querySelectorAll("button")
-      ).forEach(function (button) {
+      Array.from(tabs.querySelectorAll("button")).forEach(function (button) {
         button.classList.toggle(
           "active",
           button.getAttribute("data-month") === key
@@ -874,7 +845,6 @@
       button.className = "archive-month-button";
       button.setAttribute("data-month", key);
       button.textContent = label;
-
       button.onclick = function () {
         activate(key);
       };
@@ -939,7 +909,14 @@
 
         addBody(content, article.body);
 
-        if (validUrl(article.externalUrl)) {
+        var archiveYoutube =
+          article.youtube ||
+          (isYoutubeUrl(article.externalUrl) ? article.externalUrl : "");
+
+        if (
+          validUrl(article.externalUrl) &&
+          !(isYoutubeUrl(article.externalUrl) && youtubeId(article.externalUrl))
+        ) {
           var archiveActions = el("div", "button-row article-actions");
 
           addArticleLink(
@@ -954,7 +931,7 @@
           }
         }
 
-        addYoutube(content, article.youtube || "");
+        addYoutube(content, archiveYoutube);
         articleSocialLinks(content);
 
         card.appendChild(summary);
@@ -995,12 +972,7 @@
       "profile-image"
     );
 
-    addText(
-      content,
-      "h3",
-      "profile-name",
-      person.name
-    );
+    addText(content, "h3", "profile-name", person.name);
 
     addText(
       content,
@@ -1037,12 +1009,7 @@
       })
       .filter(Boolean)
       .forEach(function (line) {
-        addText(
-          grid,
-          "div",
-          "policy-item",
-          line
-        );
+        addText(grid, "div", "policy-item", line);
       });
 
     root.appendChild(grid);
@@ -1071,11 +1038,7 @@
 
     var box = el("div", "consultation-box");
 
-    addBody(
-      box,
-      person.consultation || D.contact
-    );
-
+    addBody(box, person.consultation || D.contact);
     addLink(
       box,
       "お問い合わせページを開く",
@@ -1141,11 +1104,13 @@
         );
       });
 
-    if (D.youtube) {
+    var commonYoutube = D.youtube || D.youtubeUrl || "";
+
+    if (commonYoutube) {
       addSocialDestination(
         grid,
         "YouTube",
-        D.youtube,
+        commonYoutube,
         "▶",
         "youtube"
       );
@@ -1187,7 +1152,9 @@
       title: item.title,
       body: item.body,
       images: normalizeImages(item),
-      youtube: articleVideo(item),
+      youtube:
+        articleVideo(item) ||
+        (isYoutubeUrl(item.externalUrl) ? item.externalUrl : ""),
       externalUrl: item.externalUrl || "",
       status: item.status || ""
     };
@@ -1220,16 +1187,17 @@
         var list =
           data && Array.isArray(data.news)
             ? data.news
-            : [];
+            : data && Array.isArray(data.articles)
+              ? data.articles
+              : data && Array.isArray(data.items)
+                ? data.items
+                : [];
 
         var articles = list
           .map(normalizeNews)
           .filter(Boolean)
           .sort(function (a, b) {
-            return (
-              archiveDateNumber(b.date) -
-              archiveDateNumber(a.date)
-            );
+            return archiveDateNumber(b.date) - archiveDateNumber(a.date);
           });
 
         return {
