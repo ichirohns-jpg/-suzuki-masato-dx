@@ -7,9 +7,7 @@
   var app = document.getElementById("app");
   var photos = (D.commonImages || []).filter(Boolean);
 
-  function text(value) {
-    return value == null ? "" : String(value);
-  }
+  function text(value) { return value == null ? "" : String(value); }
 
   function el(tag, className) {
     var node = document.createElement(tag);
@@ -46,11 +44,8 @@
 
     image.onerror = function () {
       var figure = image.closest("figure");
-      if (figure) {
-        figure.remove();
-      } else {
-        image.remove();
-      }
+      if (figure) figure.remove();
+      else image.remove();
     };
 
     parent.appendChild(image);
@@ -278,7 +273,14 @@
     var copy = el("div", "hero-copy");
     var visual = el("div", "hero-visual");
     var collage = el("div", "hero-collage");
-    var list = photos.slice(1, 5);
+
+    // トップ写真をマスクなしの議場写真に変更
+    var list = [
+      photos[5],
+      photos[0],
+      photos[3],
+      photos[4]
+    ].filter(Boolean);
 
     if (!list.length) {
       list = photos.slice(0, 4);
@@ -286,12 +288,14 @@
 
     addText(copy, "p", "hero-kicker", person.role || "地域の声を県政へ");
     addText(copy, "h2", "hero-name", person.name || "鈴木正人");
+
     addText(
       copy,
       "p",
       "hero-role",
       [person.area, "活動報告"].filter(Boolean).join("｜")
     );
+
     addText(copy, "p", "hero-lead", D.appeal || D.description);
 
     var actions = el("div", "hero-actions");
@@ -305,6 +309,7 @@
     shareButton.textContent = "このページをシェア";
     share(shareButton);
     actions.appendChild(shareButton);
+
     copy.appendChild(actions);
 
     var main = el("figure", "collage-main");
@@ -322,11 +327,13 @@
 
       list.slice(2, 4).forEach(function (src, index) {
         var figure = el("figure");
+
         addImage(
           figure,
           src,
           "鈴木正人の活動写真" + (index + 3)
         );
+
         mini.appendChild(figure);
       });
 
@@ -413,12 +420,14 @@
     );
 
     addText(content, "h3", "profile-name", person.name);
+
     addText(
       content,
       "p",
       "role-line",
       [person.role, person.area].filter(Boolean).join("｜")
     );
+
     addBody(content, person.profile);
 
     layout.appendChild(media);
@@ -474,7 +483,9 @@
     );
 
     var box = el("div", "consultation-box");
+
     addBody(box, person.consultation || D.contact);
+
     addLink(
       box,
       "お問い合わせページを開く",
