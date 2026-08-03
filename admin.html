@@ -130,12 +130,31 @@
       return String(value||"").trim().replace(/\s+/g,"")
     }
 
+    function itemYoutubeUrl(item){
+      if(!item)return"";
+
+      return normalizeYoutubeUrl(
+        item.videoUrl||
+        item.videoURL||
+        item.video_url||
+        item.youtubeUrl||
+        item.youtube_url||
+        item.youtubeURL||
+        item.youtube||
+        item.video||
+        item["動画URL"]||
+        item["YouTube URL"]||
+        item["YouTube"]||
+        ""
+      )
+    }
+
     function youtubeId(url){
       var match=normalizeYoutubeUrl(url).match(
         /(?:[?&]v=|youtu\.be\/|youtube(?:-nocookie)?\.com\/(?:watch\?v=|shorts\/|live\/|embed\/|v\/))([A-Za-z0-9_-]{6,})/i
       );
 
-      return match?match[1].split(/[?&#/]/)[0]:""
+      return match?match[1].split(/[?&#/][^]*/)[0]:""
     }
 
     function showVideoPreview(){
@@ -150,7 +169,8 @@
       }
 
       var frame=document.createElement("iframe");
-      frame.src="https://www.youtube-nocookie.com/embed/"+id+"?playsinline=1&rel=0";
+
+      frame.src="https://www.youtube-nocookie.com/embed/"+id+"?playsinline=1&rel=0&modestbranding=1";
       frame.title="YouTube動画プレビュー";
       frame.loading="lazy";
       frame.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
@@ -225,7 +245,7 @@
       $("date").value=toDate(item.date);
       $("title").value=item.title||"";
       $("body").value=item.body||"";
-      $("video").value=normalizeYoutubeUrl(item.videoUrl||item.youtubeUrl||item.youtube_url||item.youtubeURL||item.youtube||item.video||"");
+      $("video").value=itemYoutubeUrl(item);
       $("external").value=item.externalUrl||"";
       $("state").value=item.status||"公開";
       currentImages=(item.images||[]).filter(Boolean).slice(0,MAX_IMAGES);
@@ -433,6 +453,8 @@
 
       status("保存しています。","loading");
 
+      var youtube=normalizeYoutubeUrl($("video").value);
+
       var payload={
         mode:"adminNewsSave",
         adminPassword:password(),
@@ -441,11 +463,20 @@
         date:$("date").value,
         title:$("title").value.trim(),
         body:$("body").value.trim(),
-        videoUrl:normalizeYoutubeUrl($("video").value),
-        youtubeUrl:normalizeYoutubeUrl($("video").value),
+
+        videoUrl:youtube,
+        videoURL:youtube,
+        video_url:youtube,
+        youtubeUrl:youtube,
+        youtube_url:youtube,
+        youtubeURL:youtube,
+        youtube:youtube,
+        video:youtube,
+
         externalUrl:$("external").value.trim(),
         status:$("state").value,
         existingImages:currentImages,
+
         newImages:newImages.map(function(x,i){
           return{
             data:x.data,
