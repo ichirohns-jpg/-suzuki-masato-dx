@@ -68,7 +68,7 @@
       item.youtubeURL ||
       item.youtube ||
       item.video ||
-      item["åç»URL"] ||
+      item["\u52d5\u753bURL"] ||
       item["YouTube URL"] ||
       item["YouTube"] ||
       "";
@@ -148,7 +148,7 @@
     try {
       return new URL(url).hostname.replace(/^www\./i, "");
     } catch (error) {
-      return "å¬å¼ãªã³ã¯";
+      return "\u516c\u5f0f\u30ea\u30f3\u30af";
     }
   }
 
@@ -157,7 +157,7 @@
 
     var image = el("img", className || "");
     image.src = src;
-    image.alt = alt || "é´æ¨æ­£äººã®æ´»ååç";
+    image.alt = alt || "\u9234\u6728\u6b63\u4eba\u306e\u6d3b\u52d5\u5199\u771f";
     image.loading = "lazy";
     image.decoding = "async";
 
@@ -255,7 +255,7 @@
       id +
       "?playsinline=1&rel=0&modestbranding=1";
 
-    frame.title = "æ´»åå ±ååç»";
+    frame.title = "\u6d3b\u52d5\u5831\u544a\u52d5\u753b";
     frame.loading = "lazy";
     frame.referrerPolicy = "strict-origin-when-cross-origin";
 
@@ -335,13 +335,13 @@
   }
 
   function updateArticleMeta(article) {
-    var title = text(article && article.title || D.title || "é´æ¨æ­£äºº");
+    var title = text(article && article.title || D.title || "\u9234\u6728\u6b63\u4eba");
     var description = text(article && article.body || D.description)
       .replace(/\s+/g, " ")
       .slice(0, 160);
     var url = articleShareUrl(article);
 
-    document.title = title + "ï½" + text(D.title || "é´æ¨æ­£äºº");
+    document.title = title + "\uff5c" + text(D.title || "\u9234\u6728\u6b63\u4eba");
 
     function meta(selector, value) {
       var node = document.querySelector(selector);
@@ -369,13 +369,18 @@
 
   function share(button) {
     button.onclick = function () {
-      var url = pageShareUrl();
+      var article = D.activeArticle || D.article;
+      var url = article ? articleShareUrl(article) : pageShareUrl();
+      var shareTitle =
+        text(article && article.title || D.title || "\u9234\u6728\u6b63\u4eba\u306e\u6d3b\u52d5\u5831\u544a");
+      var shareText = text(article && article.body || D.description);
+      var originalText = button.textContent;
 
       if (navigator.share) {
         navigator
           .share({
-            title: D.title,
-            text: D.description,
+            title: shareTitle,
+            text: shareText,
             url: url
           })
           .catch(function () {});
@@ -385,17 +390,17 @@
 
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(url).then(function () {
-          button.textContent = "ãªã³ã¯ãã³ãã¼ãã¾ãã";
+          button.textContent = "\u30ea\u30f3\u30af\u3092\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f";
 
           window.setTimeout(function () {
-            button.textContent = "ãã®ãã¼ã¸ãã·ã§ã¢";
+            button.textContent = originalText;
           }, 2200);
         });
 
         return;
       }
 
-      window.prompt("URLãã³ãã¼ãã¦ãã ãã", url);
+      window.prompt("URL\u3092\u30b3\u30d4\u30fc\u3057\u3066\u304f\u3060\u3055\u3044", url);
     };
   }
 
@@ -438,7 +443,7 @@
       addImage(
         figure,
         src,
-        label + "åç" + (index + 1)
+        label + "\u5199\u771f" + (index + 1)
       );
 
       addText(
@@ -463,7 +468,7 @@
 
     if (value.indexOf("facebook.com") >= 0) {
       return {
-        name: "Facebookï¼ãã§ã¤ã¹ããã¯ï¼",
+        name: "Facebook\uff08\u30d5\u30a7\u30a4\u30b9\u30d6\u30c3\u30af\uff09",
         icon: "f",
         css: "facebook"
       };
@@ -471,8 +476,8 @@
 
     if (value.indexOf("instagram.com") >= 0) {
       return {
-        name: "Instagramï¼ã¤ã³ã¹ã¿ã°ã©ã ï¼",
-        icon: "â",
+        name: "Instagram\uff08\u30a4\u30f3\u30b9\u30bf\u30b0\u30e9\u30e0\uff09",
+        icon: "\u25ce",
         css: "instagram"
       };
     }
@@ -482,7 +487,7 @@
       value.indexOf("x.com") >= 0
     ) {
       return {
-        name: "Xï¼æ§Twitterï¼",
+        name: "X\uff08\u65e7Twitter\uff09",
         icon: "X",
         css: "x"
       };
@@ -494,14 +499,14 @@
     ) {
       return {
         name: "YouTube",
-        icon: "â¶",
+        icon: "\u25b6",
         css: "youtube"
       };
     }
 
     return {
-      name: "å¬å¼ãªã³ã¯",
-      icon: "â",
+      name: "\u516c\u5f0f\u30ea\u30f3\u30af",
+      icon: "\u2197",
       css: "other"
     };
   }
@@ -547,12 +552,12 @@
       box,
       "h4",
       "article-social-title",
-      "ãã®è¨äºãã·ã§ã¢"
+      "\u3053\u306e\u8a18\u4e8b\u3092\u30b7\u30a7\u30a2"
     );
 
     var shareUrl = article ? articleShareUrl(article) : pageShareUrl();
     var shareTitle =
-      text(article && article.title || D.title || "é´æ¨æ­£äººã®æ´»åå ±å");
+      text(article && article.title || D.title || "\u9234\u6728\u6b63\u4eba\u306e\u6d3b\u52d5\u5831\u544a");
 
     function addShareLink(label, icon, css, url) {
       var link = el("a", "article-social-button " + css);
@@ -568,7 +573,7 @@
     }
 
     addShareLink(
-      "Facebookã§ã·ã§ã¢",
+      "Facebook\u3067\u30b7\u30a7\u30a2",
       "f",
       "facebook",
       "https://www.facebook.com/sharer/sharer.php?u=" +
@@ -576,7 +581,7 @@
     );
 
     addShareLink(
-      "Xã§ã·ã§ã¢",
+      "X\u3067\u30b7\u30a7\u30a2",
       "X",
       "x",
       "https://twitter.com/intent/tweet?text=" +
@@ -586,7 +591,7 @@
     );
 
     addShareLink(
-      "LINEã§éã",
+      "LINE\u3067\u9001\u308b",
       "L",
       "line",
       "https://line.me/R/msg/text/?" +
@@ -598,22 +603,22 @@
     copyButton.type = "button";
     copyButton.className = "article-social-button copy";
 
-    addText(copyButton, "span", "article-social-icon", "â");
-    addText(copyButton, "span", "article-social-name", "URLãã³ãã¼");
+    addText(copyButton, "span", "article-social-icon", "\u2197");
+    addText(copyButton, "span", "article-social-name", "URL\u3092\u30b3\u30d4\u30fc");
 
     copyButton.addEventListener("click", function () {
       var name = copyButton.querySelector(".article-social-name");
 
       function copied() {
-        if (name) name.textContent = "ã³ãã¼ãã¾ãã";
+        if (name) name.textContent = "\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f";
 
         window.setTimeout(function () {
-          if (name) name.textContent = "URLãã³ãã¼";
+          if (name) name.textContent = "URL\u3092\u30b3\u30d4\u30fc";
         }, 1800);
       }
 
       function fallback() {
-        window.prompt("ãã®URLãã³ãã¼ãã¦ãã ãã", shareUrl);
+        window.prompt("\u3053\u306eURL\u3092\u30b3\u30d4\u30fc\u3057\u3066\u304f\u3060\u3055\u3044", shareUrl);
       }
 
       if (
@@ -655,21 +660,21 @@
       copy,
       "p",
       "hero-kicker",
-      person.role || "å°åã®å£°ãçæ¿ã¸"
+      person.role || "\u5730\u57df\u306e\u58f0\u3092\u770c\u653f\u3078"
     );
 
     addText(
       copy,
       "h2",
       "hero-name",
-      person.name || "é´æ¨æ­£äºº"
+      person.name || "\u9234\u6728\u6b63\u4eba"
     );
 
     addText(
       copy,
       "p",
       "hero-role",
-      [person.area, "æ´»åå ±å"].filter(Boolean).join("ï½")
+      [person.area, "\u6d3b\u52d5\u5831\u544a"].filter(Boolean).join("\uff5c")
     );
 
     addText(
@@ -683,21 +688,21 @@
 
     addLink(
       actions,
-      "æ´»åå ±åãè¦ã",
+      "\u6d3b\u52d5\u5831\u544a\u3092\u898b\u308b",
       "#activity",
       "button gold"
     );
 
     addLink(
       actions,
-      "ãã­ãã£ã¼ã«",
+      "\u30d7\u30ed\u30d5\u30a3\u30fc\u30eb",
       "#profile",
       "button secondary"
     );
 
     addLink(
       actions,
-      "å¬å¼ãµã¤ã",
+      "\u516c\u5f0f\u30b5\u30a4\u30c8",
       D.officialSite,
       "button"
     );
@@ -705,7 +710,7 @@
     var shareButton = el("button", "share-button");
 
     shareButton.type = "button";
-    shareButton.textContent = "ãã®ãã¼ã¸ãã·ã§ã¢";
+    shareButton.textContent = "\u3053\u306e\u30da\u30fc\u30b8\u3092\u30b7\u30a7\u30a2";
 
     share(shareButton);
 
@@ -717,7 +722,7 @@
     addImage(
       main,
       list[0] || photos[0],
-      "é´æ¨æ­£äººã®æ´»ååç"
+      "\u9234\u6728\u6b63\u4eba\u306e\u6d3b\u52d5\u5199\u771f"
     );
 
     collage.appendChild(main);
@@ -728,7 +733,7 @@
       addImage(
         small,
         list[1],
-        "é´æ¨æ­£äººã®æ´»ååç"
+        "\u9234\u6728\u6b63\u4eba\u306e\u6d3b\u52d5\u5199\u771f"
       );
 
       collage.appendChild(small);
@@ -743,7 +748,7 @@
         addImage(
           figure,
           src,
-          "é´æ¨æ­£äººã®æ´»ååç" + (index + 3)
+          "\u9234\u6728\u6b63\u4eba\u306e\u6d3b\u52d5\u5199\u771f" + (index + 3)
         );
 
         mini.appendChild(figure);
@@ -756,7 +761,7 @@
       collage,
       "p",
       "collage-note",
-      "å¿æ¨å¸ããçæ¿ã¸"
+      "\u5fd7\u6728\u5e02\u304b\u3089\u770c\u653f\u3078"
     );
 
     visual.appendChild(collage);
@@ -766,14 +771,14 @@
     addImage(
       portrait,
       person.image || photos[0],
-      "é´æ¨æ­£äºº"
+      "\u9234\u6728\u6b63\u4eba"
     );
 
     addText(
       portrait,
       "span",
       "portrait-label",
-      "é´æ¨æ­£äºº"
+      "\u9234\u6728\u6b63\u4eba"
     );
 
     visual.appendChild(portrait);
@@ -791,8 +796,8 @@
     var root = section(
       "activity",
       "ACTIVITY REPORT",
-      "æ´»åå ±å",
-      articleOnly ? "å±æãããè¨äº" : "ææ°ã®æ´»å"
+      "\u6d3b\u52d5\u5831\u544a",
+      articleOnly ? "\u5171\u6709\u3055\u308c\u305f\u8a18\u4e8b" : "\u6700\u65b0\u306e\u6d3b\u52d5"
     );
 
     if (!article) {
@@ -800,7 +805,7 @@
         root,
         "p",
         "activity-empty",
-        "ç¾å¨ãå¬éä¸­ã®æ´»åå ±åã¯ããã¾ããã"
+        "\u73fe\u5728\u3001\u516c\u958b\u4e2d\u306e\u6d3b\u52d5\u5831\u544a\u306f\u3042\u308a\u307e\u305b\u3093\u3002"
       );
 
       return;
@@ -809,7 +814,7 @@
     var images = normalizeImages(article);
 
     if (images.length) {
-      rail(root, images, "æ´»ååç", "activity-photo-rail");
+      rail(root, images, "\u6d3b\u52d5\u5199\u771f", "activity-photo-rail");
     }
 
     var content = el("div", "activity-content activity-content-full");
@@ -844,7 +849,7 @@
 
       addArticleLink(
         actions,
-        "é¢é£ãªã³ã¯ãéã",
+        "\u95a2\u9023\u30ea\u30f3\u30af\u3092\u958b\u304f",
         article.externalUrl,
         "button"
       );
@@ -864,7 +869,7 @@
 
       addLink(
         back,
-        "ãã¼ã¸å¨ä½ãè¦ã",
+        "\u30da\u30fc\u30b8\u5168\u4f53\u3092\u898b\u308b",
         pageShareUrl(),
         "button secondary"
       );
@@ -877,7 +882,7 @@
     var raw = text(value).trim();
 
     var match = raw.match(
-      /(\d{4})[\/\-.å¹´](\d{1,2})(?:[\/\-.æ](\d{1,2})æ¥?)?/
+      /(\d{4})[\/\-.\u5e74](\d{1,2})(?:[\/\-.\u6708](\d{1,2})\u65e5?)?/
     );
 
     if (match) {
@@ -921,16 +926,16 @@
 
   function archiveMonthLabel(key) {
     if (key === "unknown") {
-      return "æ¥ä»æªè¨­å®";
+      return "\u65e5\u4ed8\u672a\u8a2d\u5b9a";
     }
 
     var values = key.split("-");
 
     return (
       values[0] +
-      "å¹´" +
+      "\u5e74" +
       Number(values[1]) +
-      "æ"
+      "\u6708"
     );
   }
 
@@ -938,16 +943,16 @@
     var parts = archiveDateParts(value);
 
     if (!parts.year || !parts.month) {
-      return text(value) || "æ¥ä»æªè¨­å®";
+      return text(value) || "\u65e5\u4ed8\u672a\u8a2d\u5b9a";
     }
 
     return (
       parts.year +
-      "å¹´" +
+      "\u5e74" +
       parts.month +
-      "æ" +
+      "\u6708" +
       parts.day +
-      "æ¥"
+      "\u65e5"
     );
   }
 
@@ -971,8 +976,8 @@
     var root = section(
       "archive",
       "ARCHIVE",
-      "æå¥ã¢ã¼ã«ã¤ã",
-      "éå»ã®æ´»åå ±å"
+      "\u6708\u5225\u30a2\u30fc\u30ab\u30a4\u30d6",
+      "\u904e\u53bb\u306e\u6d3b\u52d5\u5831\u544a"
     );
 
     if (!articles.length) {
@@ -980,7 +985,7 @@
         root,
         "p",
         "archive-empty",
-        "å¬éä¸­ã®è¨äºã¯ã¾ã ããã¾ããã"
+        "\u516c\u958b\u4e2d\u306e\u8a18\u4e8b\u306f\u307e\u3060\u3042\u308a\u307e\u305b\u3093\u3002"
       );
 
       return;
@@ -1020,7 +1025,7 @@
       root,
       "p",
       "archive-note",
-      "æãé¸ã¶ã¨ããã®æã®æ´»åå ±åãã¾ã¨ãã¦ãè¦§ããã ãã¾ãã"
+      "\u6708\u3092\u9078\u3076\u3068\u3001\u305d\u306e\u6708\u306e\u6d3b\u52d5\u5831\u544a\u3092\u307e\u3068\u3081\u3066\u3054\u89a7\u3044\u305f\u3060\u3051\u307e\u3059\u3002"
     );
 
     var tabs = el("div", "archive-months");
@@ -1060,7 +1065,7 @@
       tabs.appendChild(button);
     }
 
-    addTab("all", "ãã¹ã¦");
+    addTab("all", "\u3059\u3079\u3066");
 
     keys.forEach(function (key) {
       addTab(key, archiveMonthLabel(key));
@@ -1101,7 +1106,7 @@
           summary,
           "strong",
           "archive-card-title",
-          article.title || "ç¡é¡ã®æ´»åå ±å"
+          article.title || "\u7121\u984c\u306e\u6d3b\u52d5\u5831\u544a"
         );
 
         var articleImages = normalizeImages(article);
@@ -1110,7 +1115,7 @@
           rail(
             content,
             articleImages,
-            "æ´»ååç",
+            "\u6d3b\u52d5\u5199\u771f",
             "archive-photo-rail"
           );
         }
@@ -1127,7 +1132,7 @@
 
           addArticleLink(
             archiveActions,
-            "é¢é£ãªã³ã¯ãéã",
+            "\u95a2\u9023\u30ea\u30f3\u30af\u3092\u958b\u304f",
             article.externalUrl,
             "button"
           );
@@ -1163,8 +1168,8 @@
     var root = section(
       "profile",
       "PROFILE",
-      "ãã­ãã£ã¼ã«",
-      "é´æ¨æ­£äººã«ã¤ãã¦"
+      "\u30d7\u30ed\u30d5\u30a3\u30fc\u30eb",
+      "\u9234\u6728\u6b63\u4eba\u306b\u3064\u3044\u3066"
     );
 
     var layout = el("div", "profile-layout reverse");
@@ -1174,7 +1179,7 @@
     addImage(
       media,
       person.image || photos[0],
-      "é´æ¨æ­£äººã®ãã­ãã£ã¼ã«åç",
+      "\u9234\u6728\u6b63\u4eba\u306e\u30d7\u30ed\u30d5\u30a3\u30fc\u30eb\u5199\u771f",
       "profile-image"
     );
 
@@ -1189,7 +1194,7 @@
       content,
       "p",
       "role-line",
-      [person.role, person.area].filter(Boolean).join("ï½")
+      [person.role, person.area].filter(Boolean).join("\uff5c")
     );
 
     addBody(content, person.profile);
@@ -1207,8 +1212,8 @@
     var root = section(
       "policy",
       "POLICY",
-      "æ¿ç­ã»æ´»åã®æ±",
-      "å¤§åã«ãã¦ãããã¨"
+      "\u653f\u7b56\u30fb\u6d3b\u52d5\u306e\u67f1",
+      "\u5927\u5207\u306b\u3057\u3066\u3044\u308b\u3053\u3068"
     );
 
     var grid = el("div", "policy-grid");
@@ -1216,7 +1221,7 @@
     text(person.policy)
       .split(/\n/)
       .map(function (line) {
-        return line.replace(/^ã»/, "").trim();
+        return line.replace(/^\u30fb/, "").trim();
       })
       .filter(Boolean)
       .forEach(function (line) {
@@ -1237,8 +1242,8 @@
     var root = section(
       "consultation",
       "CONSULTATION",
-      "å¸æ°ç¸è«",
-      "å°åã®å£°ããèãããã ãã"
+      "\u5e02\u6c11\u76f8\u8ac7",
+      "\u5730\u57df\u306e\u58f0\u3092\u304a\u805e\u304b\u305b\u304f\u3060\u3055\u3044"
     );
 
     var layout = el("div", "consultation-layout reverse");
@@ -1248,7 +1253,7 @@
     addImage(
       media,
       photos[4] || photos[0],
-      "å°åã®æ´»ååç",
+      "\u5730\u57df\u306e\u6d3b\u52d5\u5199\u771f",
       "consultation-image"
     );
 
@@ -1261,7 +1266,7 @@
 
     addLink(
       box,
-      "ãåãåãããã¼ã¸ãéã",
+      "\u304a\u554f\u3044\u5408\u308f\u305b\u30da\u30fc\u30b8\u3092\u958b\u304f",
       D.contactUrl,
       "button"
     );
@@ -1276,8 +1281,8 @@
     var root = section(
       "social",
       "OFFICIAL / SNS",
-      "å¬å¼ãµã¤ãã»SNS",
-      "ææ°æå ±ã¯ãã¡ã"
+      "\u516c\u5f0f\u30b5\u30a4\u30c8\u30fbSNS",
+      "\u6700\u65b0\u60c5\u5831\u306f\u3053\u3061\u3089"
     );
 
     var layout = el("div", "social-layout");
@@ -1287,7 +1292,7 @@
     addImage(
       image,
       photos[5] || photos[0],
-      "é´æ¨æ­£äººã®æ´»ååç",
+      "\u9234\u6728\u6b63\u4eba\u306e\u6d3b\u52d5\u5199\u771f",
       "social-image"
     );
 
@@ -1295,14 +1300,14 @@
       content,
       "p",
       "social-lead",
-      "å¬å¼ãã¼ã ãã¼ã¸ãSNSãããææ°ã®æ´»åããè¦§ããã ãã¾ãã"
+      "\u516c\u5f0f\u30db\u30fc\u30e0\u30da\u30fc\u30b8\u3084SNS\u304b\u3089\u3001\u6700\u65b0\u306e\u6d3b\u52d5\u3092\u3054\u89a7\u3044\u305f\u3060\u3051\u307e\u3059\u3002"
     );
 
     var grid = el("div", "social-grid");
 
     socialCard(
       grid,
-      "å¬å¼ãã¼ã ãã¼ã¸",
+      "\u516c\u5f0f\u30db\u30fc\u30e0\u30da\u30fc\u30b8",
       D.officialSite,
       "Web",
       "other"
@@ -1324,9 +1329,9 @@
 
     socialCard(
       grid,
-      "ãåãåãããã¼ã¸",
+      "\u304a\u554f\u3044\u5408\u308f\u305b\u30da\u30fc\u30b8",
       D.contactUrl,
-      "â",
+      "\u2709",
       "other"
     );
 
@@ -1424,6 +1429,24 @@
       });
   }
 
+  function renderSharedMessage(title, message) {
+    var root = section(
+      "activity",
+      "ACTIVITY REPORT",
+      title,
+      "\u8a18\u4e8b\u306e\u5171\u6709"
+    );
+
+    addText(root, "p", "activity-empty", message);
+
+    addLink(
+      root,
+      "\u30da\u30fc\u30b8\u5168\u4f53\u3092\u898b\u308b",
+      pageShareUrl(),
+      "button secondary"
+    );
+  }
+
   function render() {
     if (!app) return;
 
@@ -1434,7 +1457,7 @@
     if (title) {
       title.textContent =
         (D.politician && D.politician.name) ||
-        "é´æ¨æ­£äºº";
+        "\u9234\u6728\u6b63\u4eba";
     }
 
     var requestedKey = requestedArticleKey();
@@ -1450,8 +1473,19 @@
     );
 
     if (sharedArticle) {
+      D.activeArticle = sharedArticle;
       updateArticleMeta(sharedArticle);
       renderActivity(sharedArticle);
+      return;
+    }
+
+    D.activeArticle = null;
+
+    if (requestedKey) {
+      renderSharedMessage(
+        "\u3053\u306e\u8a18\u4e8b\u3092\u8868\u793a\u3067\u304d\u307e\u305b\u3093",
+        "\u8a18\u4e8b\u30c7\u30fc\u30bf\u306e\u8aad\u307f\u8fbc\u307f\u304c\u5b8c\u4e86\u3057\u3066\u3044\u306a\u3044\u304b\u3001\u8a18\u4e8b\u304c\u524a\u9664\u3055\u308c\u3066\u3044\u307e\u3059\u3002"
+      );
       return;
     }
 
@@ -1467,14 +1501,33 @@
   var headerShare = document.getElementById("headerShare");
 
   if (headerShare) {
-    headerShare.textContent = "ãã®ãã¼ã¸ãã·ã§ã¢";
+    headerShare.textContent = "\u3053\u306e\u30da\u30fc\u30b8\u3092\u30b7\u30a7\u30a2";
     share(headerShare);
   }
 
-  render();
+  var initialArticleKey = requestedArticleKey();
+
+  if (initialArticleKey && GAS_URL) {
+    renderSharedMessage(
+      "\u8a18\u4e8b\u3092\u8aad\u307f\u8fbc\u3093\u3067\u3044\u307e\u3059",
+      "\u5171\u6709\u3055\u308c\u305f\u8a18\u4e8b\u3092\u8868\u793a\u3057\u3066\u3044\u307e\u3059\u3002\u5c11\u3057\u304a\u5f85\u3061\u304f\u3060\u3055\u3044\u3002"
+    );
+  } else {
+    render();
+  }
 
   loadRemoteArticles().then(function (result) {
-    if (!result || !result.ok) return;
+    if (!result || !result.ok) {
+      if (initialArticleKey && GAS_URL) {
+        app.innerHTML = "";
+        renderSharedMessage(
+          "\u8a18\u4e8b\u3092\u8aad\u307f\u8fbc\u3081\u307e\u305b\u3093\u3067\u3057\u305f",
+          "\u901a\u4fe1\u3092\u78ba\u8a8d\u3057\u3066\u3001\u3082\u3046\u4e00\u5ea6\u3053\u306e\u5171\u6709\u30ea\u30f3\u30af\u3092\u958b\u3044\u3066\u304f\u3060\u3055\u3044\u3002"
+        );
+      }
+
+      return;
+    }
 
     D.articles = result.articles || [];
     D.article = D.articles[0] || null;
@@ -1484,6 +1537,12 @@
       D.article.images.length
     ) {
       D.articleImages = D.article.images;
+    }
+
+    if (headerShare) {
+      headerShare.textContent = D.article
+        ? "\u3053\u306e\u8a18\u4e8b\u3092\u30b7\u30a7\u30a2"
+        : "\u3053\u306e\u30da\u30fc\u30b8\u3092\u30b7\u30a7\u30a2";
     }
 
     render();
