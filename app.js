@@ -558,6 +558,8 @@
     var shareUrl = article ? articleShareUrl(article) : pageShareUrl();
     var shareTitle =
       text(article && article.title || D.title || "\u9234\u6728\u6b63\u4eba\u306e\u6d3b\u52d5\u5831\u544a");
+    var shareText =
+      text(article && article.body || D.description);
 
     function addShareLink(label, icon, css, url) {
       var link = el("a", "article-social-button " + css);
@@ -594,8 +596,10 @@
       "LINE\u3067\u9001\u308b",
       "L",
       "line",
-      "https://line.me/R/msg/text/?" +
-        encodeURIComponent(shareTitle + "\n" + shareUrl)
+      "https://social-plugins.line.me/lineit/share?url=" +
+        encodeURIComponent(shareUrl) +
+        "&text=" +
+        encodeURIComponent(shareTitle + "\n\n" + shareText)
     );
 
     var copyButton = document.createElement("button");
@@ -1548,3 +1552,4 @@
     render();
   });
 })();
+
